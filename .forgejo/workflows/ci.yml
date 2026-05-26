@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: [self-hosted, linux, x64, <container>]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shellcheck (placeholder — vrais scripts en Phase 1 T22)
+        run: |
+          if [ -d skills ]; then
+            find skills -name "*.sh" -type f | while read -r f; do
+              echo "shellcheck $f"
+              shellcheck "$f" || exit 1
+            done
+          fi
+          echo "OK — pas de scripts à lint pour l'instant"
+
+  bats:
+    runs-on: [self-hosted, linux, x64, <container>]
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bats unit tests (placeholder)
+        run: |
+          if [ -d tests/bats ] && ls tests/bats/*.bats >/dev/null 2>&1; then
+            cd tests/bats && bats ./*.bats
+          else
+            echo "OK — pas de tests Bats pour l'instant"
+          fi
+
+  smoke:
+    runs-on: [self-hosted, linux, x64, <container>]
+    needs: bats
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke E2E (placeholder)
+        run: |
+          if [ -x tests/smoke/smoke-e2e.sh ]; then
+            bash tests/smoke/smoke-e2e.sh
+          else
+            echo "OK — pas de smoke pour l'instant"
+          fi

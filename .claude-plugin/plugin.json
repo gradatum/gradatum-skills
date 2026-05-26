@@ -1,0 +1,15 @@
+{
+  "name": "gradatum-skills",
+  "version": "0.1.0",
+  "description": "Plugin Claude Code — skills atomiques + métamémoire auto-déclenchée pour gradatum",
+  "author": "gradatum contributors",
+  "license": "Apache-2.0",
+  "homepage": "http://<forge>/maintainer/gradatum-skills",
+  "compatibility": {
+    "claude-code": ">=2.1.0"
+  },
+  "skills": [
+    "skills/gradatum-vault-search",
+    "skills/gradatum-skill-reminder"
+  ]
+}
