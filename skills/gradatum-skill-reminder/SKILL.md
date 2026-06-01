@@ -49,23 +49,23 @@ et délègue à /gradatum-vault-search. Pure logique de décision, zéro script 
 
 Ne rien faire. Pas d'output. Traiter le prompt normalement.
 
-## Sections canoniques gradatum (NOMENCLATURE §10)
+## Sections canoniques gradatum (NOMENCLATURE §10a)
 
-Les 11 sections disponibles dans le vault gradatum pour orienter les recherches :
+Les 11 sections canoniques ci-dessous sont **gelées**. Source de vérité : `NOMENCLATURE.md §10a` — toute extension requiert un council Art.19 dédié.
 
 | Section | Contenu typique |
 |---|---|
-| `decisions` | Choix structurels actés — architecture, services, orientations |
-| `council` | Verdicts council Art.19 / Art.15bis / Art.18 |
-| `commits` | Traces événements git significatifs |
-| `debug` | Bugs résolus, anomalies, diagnostics |
-| `lessons-learned` | Apprentissages post-mortem, patterns terrain |
-| `architecture` | Cartographies, schémas, ADRs techniques |
-| `agent-issues` | Comportements agents problématiques, résolutions |
-| `roadmap` | Plans, backlog, jalons futurs |
-| `retrospectives` | Bilans de phase, retours d'expérience |
-| `reasoning` | Patterns de raisonnement, modèles mentaux |
-| `project-bootstrap` | Création projets, scaffolding initial |
+| `architecture` | Analyses vérifiées, patterns archi transversaux, ADRs techniques |
+| `decisions` | Décisions stratégiques, arbitrages techniques unitaires, ADRs résumés (hors verdict council formel) |
+| `council` | Verdicts council Art.19 / Art.15bis / Art.18, leader-override oral |
+| `debug` | Symptômes + fix incident isolé (non récurrent — récurrence ≥2× → lessons-learned) |
+| `reasoning` | ReasoningBank — patterns de planification réutilisables |
+| `feedback` | Retours utilisateur ancrés projet + constat daté |
+| `lessons-learned` | Consolidation multi-incidents en leçon pattern-scoped (récurrence ≥ 2×) |
+| `retrospectives` | Post-mortem fin de phase / milestone / release |
+| `experiments` | Hypothèses testées + résultats (positifs ou négatifs) |
+| `agent-issues` | Issues agents détectées (high/medium/low) |
+| `reference` | Pointeurs vers systèmes externes (Linear, Grafana, Forgejo, docs upstream) |
 
 ## Convention titre vault (anti-doublon)
 
