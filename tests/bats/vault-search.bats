@@ -124,3 +124,8 @@ SKILL_MD="$SKILL_DIR/SKILL.md"
   run grep -E "<inference-host>|192\.168\." "$SKILL_MD"
   [ "$status" -ne 0 ]
 }
+
+@test "SKILL.md ne contient pas d'identité opérateur sensible" {
+  run grep -iE "Maintainers|maintainer|<container>|<forge>|the operator|the operator|maintainer" "$SKILL_MD"
+  [ "$status" -ne 0 ]
+}

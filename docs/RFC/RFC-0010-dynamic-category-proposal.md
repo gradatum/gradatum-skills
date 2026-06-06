@@ -2,7 +2,7 @@
 rfc: RFC-0010
 title: Dynamic category proposal & promotion
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-10
 updated: 2026-05-10
 version: 1

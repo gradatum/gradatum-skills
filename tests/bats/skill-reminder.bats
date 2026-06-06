@@ -46,7 +46,7 @@ SKILL_MD="$SKILL_DIR/SKILL.md"
   grep -q "gradatum-vault-search" "$SKILL_MD"
 }
 
-@test "SKILL.md contient la liste des 11 sections canoniques NOMENCLATURE §10" {
+@test "SKILL.md contient la liste des 11 sections canoniques" {
   # Vérifier la présence de quelques sections canoniques clés
   grep -q "decisions" "$SKILL_MD"
   grep -q "council" "$SKILL_MD"
@@ -99,6 +99,11 @@ SKILL_MD="$SKILL_DIR/SKILL.md"
 
 @test "SKILL.md ne contient pas de nom d'hôte interne sensible" {
   run grep -E "<inference-host>|192\.168\." "$SKILL_MD"
+  [ "$status" -ne 0 ]
+}
+
+@test "SKILL.md ne contient pas d'identité opérateur sensible" {
+  run grep -iE "Maintainers|maintainer|<container>|<forge>|the operator|the operator|maintainer" "$SKILL_MD"
   [ "$status" -ne 0 ]
 }
 

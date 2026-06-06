@@ -2,7 +2,7 @@
 rfc: RFC-0001
 title: Curator — multi-tag classification with reflective improvement
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-08
 updated: 2026-05-10
 version: 1
@@ -275,7 +275,7 @@ gradatum-admin curator import-corrections \
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-05-08 | @the operator | Initial creation from brainstorming session, status: Draft |
+| 2026-05-08 | @gradatum-maintainer | Initial creation from brainstorming session, status: Draft |
 | 2026-05-10 | opérateur | Migration NAS → gradatum-skills public repo, renumérotation RFC-SKILL-GRADATUM-0004 → RFC-0001, table header → YAML frontmatter, refs mises à jour |
 
 ---

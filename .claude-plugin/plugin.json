@@ -4,7 +4,7 @@
   "description": "Plugin Claude Code — skills atomiques + métamémoire auto-déclenchée pour gradatum",
   "author": "gradatum contributors",
   "license": "Apache-2.0",
-  "homepage": "http://<forge>/maintainer/gradatum-skills",
+  "homepage": "https://github.com/gradatum/gradatum-skills",
   "compatibility": {
     "claude-code": ">=2.1.0"
   },

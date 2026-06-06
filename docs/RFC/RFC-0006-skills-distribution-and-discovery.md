@@ -2,7 +2,7 @@
 rfc: RFC-0006
 title: Skills distribution and discovery (with vault-discipline reference skill)
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-08
 updated: 2026-05-10
 version: 1
@@ -362,7 +362,7 @@ The catalogue README is to be placed at `examples/skills/README.md`. See this RF
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-05-08 | @the operator | Initial creation, status: Draft |
+| 2026-05-08 | @gradatum-maintainer | Initial creation, status: Draft |
 | 2026-05-10 | opérateur | Migration NAS → gradatum-skills public repo, renumérotation RFC-SKILL-GRADATUM-0009 → RFC-0006, table header → YAML frontmatter, refs mises à jour |
 
 ---

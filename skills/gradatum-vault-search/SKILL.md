@@ -78,11 +78,11 @@ Pas de fallback dans le scope du script — les fallbacks sont gérés par grada
 
 ```bash
 # Recherche full-text
-/gradatum-vault-search "council Art.19 renommage skills 2026-05"
+/gradatum-vault-search "architecture skills renommage 2026-05"
 
 # Recherche par section (via variable d'env non encore supportée dans search.sh v1 — passer dans la query)
-/gradatum-vault-search "decisions vault-mem gradatum pivot 2026-05"
+/gradatum-vault-search "decisions gradatum pivot 2026-05"
 
 # Anti-doublon avant écriture
-/gradatum-vault-search "leader-override the maintainer gradatum primary"
+/gradatum-vault-search "pattern gradatum primary source unique"
 ```

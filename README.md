@@ -40,11 +40,11 @@ Déclencheur métamémoire basé sur des règles de décision CHERCHE/SKIP.
 - **Phase 4** — Compatibilité multi-agent (goose, gemini-cli, open-code)
 - **Phase 5** — Distribution `/plugin install gradatum/skills`
 
-Détails : `docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md` + roadmap `~/tmp/scratch/2026-05-09-gradatum-skills-roadmap-future.md`.
+Détails : `docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md`.
 
 ## Pré-requis
 
-- Serveur `gradatum-server` LIVE sur `http://<gradatum-server>` (<container>)
+- Serveur `gradatum-server` LIVE sur `http://<gradatum-server>` (self-hosted)
 - Auth API key file `/etc/gradatum/claude-code.api-key` (Path 2 → JWT 24h)
 - `bash` 5+, `curl`, `jq`
 
@@ -96,6 +96,3 @@ bash tests/smoke/smoke-e2e.sh
 
 Apache-2.0 — voir `LICENSE`.
 
-## Contexte projet
-
-`CLAUDE-GRADATUM-SKILLS.md` — état, roadmap détaillée, décisions structurantes.

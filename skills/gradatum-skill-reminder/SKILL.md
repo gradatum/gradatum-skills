@@ -49,23 +49,23 @@ et délègue à /gradatum-vault-search. Pure logique de décision, zéro script 
 
 Ne rien faire. Pas d'output. Traiter le prompt normalement.
 
-## Sections canoniques gradatum (NOMENCLATURE §10a)
+## Sections canoniques gradatum
 
-Les 11 sections canoniques ci-dessous sont **gelées**. Source de vérité : `NOMENCLATURE.md §10a` — toute extension requiert un council Art.19 dédié.
+Les 11 sections canoniques ci-dessous sont **gelées**. Toute extension requiert une révision documentaire dédiée.
 
 | Section | Contenu typique |
 |---|---|
 | `architecture` | Analyses vérifiées, patterns archi transversaux, ADRs techniques |
-| `decisions` | Décisions stratégiques, arbitrages techniques unitaires, ADRs résumés (hors verdict council formel) |
-| `council` | Verdicts council Art.19 / Art.15bis / Art.18, leader-override oral |
+| `decisions` | Décisions stratégiques, arbitrages techniques unitaires, ADRs |
+| `council` | Verdicts de révision structurante, arbitrages transversaux |
 | `debug` | Symptômes + fix incident isolé (non récurrent — récurrence ≥2× → lessons-learned) |
-| `reasoning` | ReasoningBank — patterns de planification réutilisables |
+| `reasoning` | Patterns de planification réutilisables |
 | `feedback` | Retours utilisateur ancrés projet + constat daté |
 | `lessons-learned` | Consolidation multi-incidents en leçon pattern-scoped (récurrence ≥ 2×) |
 | `retrospectives` | Post-mortem fin de phase / milestone / release |
 | `experiments` | Hypothèses testées + résultats (positifs ou négatifs) |
 | `agent-issues` | Issues agents détectées (high/medium/low) |
-| `reference` | Pointeurs vers systèmes externes (Linear, Grafana, Forgejo, docs upstream) |
+| `reference` | Pointeurs vers systèmes externes (docs upstream, dashboards, tickets) |
 
 ## Convention titre vault (anti-doublon)
 
@@ -73,8 +73,8 @@ Format strict : `[CATÉGORIE][PROJET] Verbe objet — date`
 
 Exemples valides :
 - `[DECISIONS][gradatum] Choix reranker BGE-v2-m3 — 2026-05-10`
-- `[COUNCIL][homelab] Art.19 v3 GO renommage skills — 2026-05-10`
-- `[RETRO][nexus-library] Phase M2 LIVRÉE — 2026-03-07`
+- `[COUNCIL][my-project] Révision archi skills — 2026-05-10`
+- `[RETRO][my-project] Release v1.2 LIVRÉE — 2026-03-07`
 
 ## Anti-patterns
 

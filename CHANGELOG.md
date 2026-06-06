@@ -25,8 +25,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 
 ### Added
 - Bootstrap projet (Chemin A — lib/tool/plugin Claude Code)
-- Arborescence §3b NOMENCLATURE (CLAUDE-GRADATUM-SKILLS.md, README.md, ARCHITECTURE.md, DEPENDENCIES.md)
-- Repo Forgejo PRIMARY (`maintainer/gradatum-skills`) + GitHub mirror (`gradatum/skills` privé)
+- Arborescence standard (CLAUDE-GRADATUM-SKILLS.md, README.md, ARCHITECTURE.md, DEPENDENCIES.md)
+- Repo source + GitHub mirror (`gradatum/gradatum-skills`)
 - Spec design Phase 1 (`docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md`)
 - Plan d'implémentation Phase 1 (`docs/superpowers/plans/2026-05-09-gradatum-skill-reminder-plan.md`)
 - LICENSE Apache-2.0

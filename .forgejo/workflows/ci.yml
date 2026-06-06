@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    runs-on: [self-hosted, linux, x64, <container>]
+    runs-on: [self-hosted, linux, x64, gradatum-ci]
     steps:
       - uses: actions/checkout@v4
       - name: Shellcheck (placeholder — vrais scripts en Phase 1 T22)
@@ -22,7 +22,7 @@ jobs:
           echo "OK — pas de scripts à lint pour l'instant"
 
   bats:
-    runs-on: [self-hosted, linux, x64, <container>]
+    runs-on: [self-hosted, linux, x64, gradatum-ci]
     needs: lint
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           fi
 
   smoke:
-    runs-on: [self-hosted, linux, x64, <container>]
+    runs-on: [self-hosted, linux, x64, gradatum-ci]
     needs: bats
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:

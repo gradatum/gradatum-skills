@@ -35,7 +35,7 @@ gradatum-skills/                                      [CORE]   plugin Claude Cod
 | `/gradatum-vault-search` | utilise auth | `/etc/gradatum/claude-code.api-key` | API key → JWT 24h via `/auth/exchange` |
 | `tests/bats/` | teste | `scripts/search.sh` | Unit isolés (mock curl) |
 | `tests/smoke/` | déclenche | `gradatum-server :19090` | E2E LIVE, write canary + verify |
-| `.forgejo/workflows/ci.yml` | exécute | `tests/bats/` + `tests/smoke/` | Runner `<container>` |
+| `.forgejo/workflows/ci.yml` | exécute | `tests/bats/` + `tests/smoke/` | Runner self-hosted |
 
 ## Services externes
 

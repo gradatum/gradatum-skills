@@ -2,7 +2,7 @@
 rfc: RFC-0005
 title: "gradatum-privacy: PII filtering at write-time"
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-08
 updated: 2026-05-10
 version: 1
@@ -297,7 +297,7 @@ Phase 1 → Phase 2 migration:
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-05-08 | @the operator | Initial creation from ex-spec #4, status: Draft |
+| 2026-05-08 | @gradatum-maintainer | Initial creation from ex-spec #4, status: Draft |
 | 2026-05-10 | opérateur | Migration NAS → gradatum-skills public repo, renumérotation RFC-SKILL-GRADATUM-0008 → RFC-0005, table header → YAML frontmatter, refs mises à jour |
 
 ---

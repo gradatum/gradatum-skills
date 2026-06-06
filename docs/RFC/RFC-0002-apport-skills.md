@@ -2,7 +2,7 @@
 rfc: RFC-0002
 title: Contribution enrichments to gradatum self-improvement RFC
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-08
 updated: 2026-05-10
 version: 1
@@ -203,7 +203,7 @@ status: validated                             # cf. FSM §3.2
 created_at: 2026-05-08T10:00:00Z
 last_modified_at: 2026-05-08T14:32:00Z
 last_reviewed_at: 2026-05-08T14:32:00Z
-reviewed_by: "the operator"
+reviewed_by: "gradatum-maintainer"
 deprecated_reason: null
 
 # === Section 7: Versioning ===
@@ -282,7 +282,7 @@ Aucune urgence : `gradatum:RFC-0005` cible Phase 3+ (≥6 mois post-D5). La disc
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-05-08 | @the operator | Initial creation from ex-specs #5+#6 analysis, status: Draft |
+| 2026-05-08 | @gradatum-maintainer | Initial creation from ex-specs #5+#6 analysis, status: Draft |
 | 2026-05-10 | opérateur | Migration NAS → gradatum-skills public repo, renumérotation RFC-SKILL-GRADATUM-0005 → RFC-0002, table header → YAML frontmatter, refs mises à jour |
 
 ---

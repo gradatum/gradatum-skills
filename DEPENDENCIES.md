@@ -10,7 +10,7 @@
 | `curl` | 7.68+ | HTTP client (vault_search, auth/exchange) | Système Linux |
 | `jq` | 1.6+ | JSON parsing/formatting | Système Linux |
 | `coreutils` | — | `cat`, `sed`, `grep`, `seq` | Système Linux |
-| `gradatum-server` | 0.1.0-alpha.13+ | Backend HTTP (port 19090) | <container> — `~/projects/gradatum/` |
+| `gradatum-server` | 0.1.0-alpha.13+ | Backend HTTP (port 19090) | self-hosted — https://github.com/gradatum/gradatum |
 
 ## Tests
 
@@ -24,11 +24,11 @@
 
 | Dépendance | Version min | Rôle |
 |---|---|---|
-| `forgejo-runner` | 6.0+ | Runner self-hosted (label `<container>`) |
+| `forgejo-runner` | 6.0+ | Runner self-hosted (self-hosted runner) |
 | `actions/checkout@v4` | — | Forgejo Actions |
 
 ## Notes
 
 - Aucune dépendance Node, Python, Rust, Go côté client → portabilité maximum.
 - `gh` CLI utilisé uniquement pour bootstrap mirror GitHub (pas en runtime).
-- Version `gradatum-server` LIVE testée : voir `~/projects/gradatum/CLAUDE-GRADATUM.md`.
+- Version `gradatum-server` LIVE testée : voir le CHANGELOG du dépôt gradatum.

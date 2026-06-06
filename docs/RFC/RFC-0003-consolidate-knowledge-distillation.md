@@ -2,7 +2,7 @@
 rfc: RFC-0003
 title: "gradatum-consolidate: knowledge consolidation (atomic facts, concepts, dedup)"
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-08
 updated: 2026-05-10
 version: 1
@@ -295,7 +295,7 @@ Rollback: `DROP TABLE consolidate_*` is safe — no source data is touched.
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-05-08 | @the operator | Initial creation from ex-spec #2, status: Draft |
+| 2026-05-08 | @gradatum-maintainer | Initial creation from ex-spec #2, status: Draft |
 | 2026-05-10 | opérateur | Migration NAS → gradatum-skills public repo, renumérotation RFC-SKILL-GRADATUM-0006 → RFC-0003, table header → YAML frontmatter, refs mises à jour |
 
 ---

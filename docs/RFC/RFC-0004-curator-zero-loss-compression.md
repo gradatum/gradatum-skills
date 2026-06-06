@@ -2,7 +2,7 @@
 rfc: RFC-0004
 title: "Curator: zero-loss compression and dedup with fidelity guard"
 status: Draft
-author: '@the operator'
+author: '@gradatum-maintainer'
 created: 2026-05-08
 updated: 2026-05-10
 version: 1
@@ -49,7 +49,7 @@ This RFC proposes a cleaner pipeline that **rewrites notes in place** while guar
 - The original content is always preserved in `vault/cleaner-archive/` (ULID + content_hash addressable).
 - The rewrite is published only if the validator confirms semantic equivalence above a threshold.
 - Three modes cover the spectrum from conservative (token-only) to aggressive (concept-restructuring) to evolutionary (genetic programming on rewrite ops).
-- The validator is an LLM judge (Qwen3.6-27B THINKING <inference-host> :8081 (deep on-demand, ctx 128K, pas de nouveau modèle requis — alternative Qwen3.6-35B-A3B :8080) recommended) that compares the original vs. rewrite on a recall-of-key-claims metric.
+- The validator is an LLM judge (a local reasoning LLM (e.g. a 27B-class model, ctx 128K) recommended) that compares the original vs. rewrite on a recall-of-key-claims metric.
 
 The motivation is concrete: a memory backbone that grows monotonically becomes unusable. Operators need a tool to compact without losing.
 
@@ -255,7 +255,7 @@ Rollback per cycle is supported. Bulk rollback via `gradatum-admin cleaner resto
 
 ## 6. Drawbacks
 
-- **LLM cost — significant.** Each rewrite calls the validator. At ~3 calls per rewrite × ~5% of notes per sweep × 1000 notes → ~150 calls per cycle. At Qwen3.6-27B THINKING <inference-host> :8081 (deep on-demand, ctx 128K, pas de nouveau modèle requis — alternative Qwen3.6-35B-A3B :8080): ~30 minutes wall-clock weekly.
+- **LLM cost — significant.** Each rewrite calls the validator. At ~3 calls per rewrite × ~5% of notes per sweep × 1000 notes → ~150 calls per cycle. At a local reasoning LLM (e.g. a 27B-class model, ctx 128K): ~30 minutes wall-clock weekly.
 - **Risk of false-accept.** A validator with imperfect recall metric can let through a rewrite that looks similar but loses a key claim. Mitigation: `safe` preset uses `strict` validation. But operators using `compress_max` accept higher risk.
 - **Storage doubles in archive.** Every rewrite preserves the original. After 1 year of weekly cycles, archive may exceed live KB size. Mitigation: archive compaction (tar.gz monthly) — but adds complexity.
 - **Evolutionary mode is exotic.** GP over rewrite ops is research-grade. The fitness function is hand-tuned. False optima are common. Should be flagged experimental and gated behind `gradatum-admin cleaner enable-experimental`.
@@ -267,7 +267,7 @@ Rollback per cycle is supported. Bulk rollback via `gradatum-admin cleaner resto
 
 ## 7. Unresolved questions
 
-- [ ] Validator model choice: Qwen3.6-27B THINKING <inference-host> :8081 (deep on-demand, ctx 128K, pas de nouveau modèle requis — alternative Qwen3.6-35B-A3B :8080) is recommended but slow. Should `cleaner.fast_path` allow Qwen3-4B-Instruct-2507 with stricter threshold? Trade-off latency vs accuracy.
+- [ ] Validator model choice: a local reasoning LLM (e.g. a 27B-class model, ctx 128K) is recommended but slow. Should `cleaner.fast_path` allow Qwen3-4B-Instruct-2507 with stricter threshold? Trade-off latency vs accuracy.
 - [ ] Archive retention policy: indefinite, or N years configurable? Operator expectation may vary.
 - [ ] Cross-tenant cleaner: does a `safe` sweep behave the same on every tenant? Default proposal: yes, per-tenant configuration possible.
 - [ ] Interaction with `gradatum-consolidate` (RFC-0003): should the cleaner refuse to rewrite notes that are heavily referenced by consolidated facts (high `fact_count`)? Or rewrite + invalidate consolidation? Default proposal: refuse if `fact_count > 5`, force operator override.
@@ -291,7 +291,7 @@ Rollback per cycle is supported. Bulk rollback via `gradatum-admin cleaner resto
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-05-08 | @the operator | Initial creation from ex-spec #3, status: Draft |
+| 2026-05-08 | @gradatum-maintainer | Initial creation from ex-spec #3, status: Draft |
 | 2026-05-10 | opérateur | Migration NAS → gradatum-skills public repo, renumérotation RFC-SKILL-GRADATUM-0007 → RFC-0004, table header → YAML frontmatter, refs mises à jour |
 
 ---
