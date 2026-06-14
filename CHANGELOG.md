@@ -16,6 +16,13 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 - `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault
   (`POST /api/v1/vault_timeline`, fenêtre epoch ms, filtre `Static`/`Event`). Script `scripts/timeline.sh`.
 
+### Added — couche L1 capture
+- `skills/gradatum-memorize/` — L1 pure-logique : décide QUOI persister durablement (décision/leçon/
+  analyse/post-mortem/résultat) + route vers la bonne section canonique, puis délègue à
+  /gradatum-vault-write (via vault-search anti-doublon → vault-read sha → vault-write). Symétrique de
+  skill-reminder (chercher) côté écrire. Council Art.19 GO-CAVEATS. NB : memo-snapshot/incremental
+  (boucle checkpoint→synthèse) NON portés en public — infra homelab, hors primitif produit.
+
 ### Added — couche L0 code
 - `skills/gradatum-code-map/` — L0 atomique : interroge la carte de code dérivée d'un projet
   (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter zéro-LLM). 3 modes `query`/`symbol`/

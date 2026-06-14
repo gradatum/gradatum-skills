@@ -16,6 +16,7 @@ Deux skills livrés en phase 1 :
 | `/gradatum-vault-timeline` | L0 | Requête temporelle du vault (`POST /api/v1/vault_timeline`, fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
 | `/gradatum-vault-write` | L0 | Écriture vault (`POST /api/v1/vault_write`) — create + update in-place RMW (concurrence-safe sha256). Corps sur stdin, poll async, garde anti-doublon. | ✅ LIVRÉ |
 | `/gradatum-code-map` | L0 | Carte de code dérivée (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter). Modes query/symbol/path + corps. Comprendre/naviguer du code sans lire les fichiers entiers. | ✅ LIVRÉ |
+| `/gradatum-memorize` | L1 | Décide QUOI persister durablement + route vers la bonne section, délègue à `/gradatum-vault-write`. Symétrique de skill-reminder (écrire vs chercher). Pure logique. | ✅ LIVRÉ |
 | `/gradatum-skill-reminder` | L1 | Métamémoire auto-déclenchée — détermine si le contexte courant nécessite une recherche vault, délègue à `/gradatum-vault-search`. Pure logique de décision. | ✅ LIVRÉ |
 
 ### /gradatum-vault-search (L0 — atomique HTTP)
@@ -64,6 +65,7 @@ ln -sf ~/projects/gradatum-skills/skills/gradatum-lessons-recall ~/.claude/skill
 ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-timeline ~/.claude/skills/gradatum-vault-timeline
 ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-write ~/.claude/skills/gradatum-vault-write
 ln -sf ~/projects/gradatum-skills/skills/gradatum-code-map ~/.claude/skills/gradatum-code-map
+ln -sf ~/projects/gradatum-skills/skills/gradatum-memorize ~/.claude/skills/gradatum-memorize
 ln -sf ~/projects/gradatum-skills/skills/gradatum-skill-reminder ~/.claude/skills/gradatum-skill-reminder
 ```
 
