@@ -46,7 +46,10 @@ BODY
 Pour modifier une note existante SANS créer de doublon :
 
 1. Lire la note d'abord : `/gradatum-vault-read "<section>/<ulid>"` → récupérer le **`sha256`** ET le
-   **corps actuel complet** (pour composer la version de remplacement intégrale).
+   **corps actuel complet** (pour composer la version de remplacement intégrale). La réponse `vault-read`
+   **ne contient pas de champ `title`** — le `--title` doit provenir d'une source connue (résultat
+   `/gradatum-vault-search`, ou la première ligne du corps lu), jamais de la réponse `vault-read`
+   (voir Anti-patterns).
 2. Écrire avec le `note_id` + le `sha256` lu :
 
 ```bash
@@ -87,6 +90,9 @@ jusqu'à un état terminal. Output :
 
 - Ne JAMAIS créer une note sans chercher d'abord (doublon).
 - Ne JAMAIS faire un `update` sans le `sha256` frais de la note (concurrence-safe).
+- Ne JAMAIS passer `--title` depuis la réponse de `/gradatum-vault-read` : ce champ n'existe pas dans sa
+  sortie — la valeur serait littéralement `"null"`, corrompant le titre silencieusement (exit 0).
+  Conserver le titre depuis `/gradatum-vault-search` ou la première ligne du corps lu.
 - Ne pas écrire de contenu éphémère (détails de debug jetables, état de session) — le vault est durable.
 - Le titre doit être spécifique : « Note sur X » est un mauvais titre.
 - Ne JAMAIS deviner la section sans consulter les 11 sections canoniques ci-dessus — une décision
