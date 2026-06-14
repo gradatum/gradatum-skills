@@ -11,6 +11,9 @@ Deux skills livrés en phase 1 :
 | Skill | Niveau | Rôle | Statut |
 |---|---|---|---|
 | `/gradatum-vault-search` | L0 | Wrapper HTTP atomique sur `POST /api/v1/vault_search` du serveur gradatum (`:19090`). Script Bash POSIX `scripts/search.sh`. | ✅ LIVRÉ |
+| `/gradatum-vault-read` | L0 | Lit le contenu COMPLET d'une note par chemin (`POST /api/v1/vault_read`). Complément de vault-search (qui ne renvoie que des ULID). | ✅ LIVRÉ |
+| `/gradatum-lessons-recall` | L0 | Recall des leçons apprises (F-60) par classe (`GET /api/v1/lessons/recall`). Recall JIT avant un gate à risque. | ✅ LIVRÉ |
+| `/gradatum-vault-timeline` | L0 | Requête temporelle du vault (`POST /api/v1/vault_timeline`, fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
 | `/gradatum-skill-reminder` | L1 | Métamémoire auto-déclenchée — détermine si le contexte courant nécessite une recherche vault, délègue à `/gradatum-vault-search`. Pure logique de décision. | ✅ LIVRÉ |
 
 ### /gradatum-vault-search (L0 — atomique HTTP)
@@ -54,6 +57,9 @@ Symlinks depuis `~/.claude/skills/` vers ce projet :
 
 ```bash
 ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-search ~/.claude/skills/gradatum-vault-search
+ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-read ~/.claude/skills/gradatum-vault-read
+ln -sf ~/projects/gradatum-skills/skills/gradatum-lessons-recall ~/.claude/skills/gradatum-lessons-recall
+ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-timeline ~/.claude/skills/gradatum-vault-timeline
 ln -sf ~/projects/gradatum-skills/skills/gradatum-skill-reminder ~/.claude/skills/gradatum-skill-reminder
 ```
 

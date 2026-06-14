@@ -10,6 +10,9 @@
   },
   "skills": [
     "skills/gradatum-vault-search",
+    "skills/gradatum-vault-read",
+    "skills/gradatum-lessons-recall",
+    "skills/gradatum-vault-timeline",
     "skills/gradatum-skill-reminder"
   ]
 }

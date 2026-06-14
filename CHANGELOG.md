@@ -2,6 +2,26 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 
+## [Unreleased — interne]
+
+> Développé en interne, pas encore publié (tag public synchronisé avec la release gradatum v0.5.2).
+
+### Added — couche L0 lecture (set indispensable)
+- `skills/gradatum-vault-read/` — L0 atomique : lit le contenu COMPLET d'une note par chemin
+  (`POST /api/v1/vault_read`). Script `scripts/read.sh`. Complément de vault-search (qui ne renvoie
+  que des ULID). Output : path + section + sha256 + corps markdown.
+- `skills/gradatum-lessons-recall/` — L0 atomique : recall des leçons F-60 par classe
+  (`GET /api/v1/lessons/recall`, 12 classes contrôlées). Script `scripts/recall.sh`. Recall JIT
+  avant un gate à risque.
+- `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault
+  (`POST /api/v1/vault_timeline`, fenêtre epoch ms, filtre `Static`/`Event`). Script `scripts/timeline.sh`.
+
+### Security
+- Tous les nouveaux scripts : secret (clé API, JWT) passé à curl via en-tête sur descripteur de
+  fichier (`-H @<(...)`) — jamais en argv (pas d'exposition `/proc/<pid>/cmdline`). Fallback clé en
+  `sudo -n` (non-bloquant). Validation d'arguments (epoch ms entiers, `doc_kind` ∈ {Static,Event}).
+- Council Art.19 3/3 GO-CAVEATS ; smoke LIVE :19090 validé pour les 3.
+
 ## [0.1.0] — 2026-05-25
 
 ### Added
