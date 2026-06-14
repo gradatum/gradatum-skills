@@ -13,6 +13,7 @@
     "skills/gradatum-vault-read",
     "skills/gradatum-lessons-recall",
     "skills/gradatum-vault-timeline",
+    "skills/gradatum-vault-write",
     "skills/gradatum-skill-reminder"
   ]
 }

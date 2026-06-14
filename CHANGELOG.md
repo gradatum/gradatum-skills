@@ -16,6 +16,14 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 - `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault
   (`POST /api/v1/vault_timeline`, fenêtre epoch ms, filtre `Static`/`Event`). Script `scripts/timeline.sh`.
 
+### Added — couche L0 écriture
+- `skills/gradatum-vault-write/` — L0 atomique : écriture vault (`POST /api/v1/vault_write`), modes
+  **create** (note neuve) et **update** in-place (RMW `note_id` + `expected_sha256`, concurrence-safe :
+  sha périmé → `Conflict`, note non écrasée). Corps markdown sur stdin (immunisé ARG_MAX via stdin
+  jq+curl). Poll async jusqu'à l'état terminal. Garde anti-doublon (chercher avant créer). Script
+  `scripts/write.sh`. Council Art.19 3/3 GO-CAVEATS (sécu write path : injection neutralisée argv+body,
+  garde sha client+serveur, secret via FD).
+
 ### Security
 - Tous les nouveaux scripts : secret (clé API, JWT) passé à curl via en-tête sur descripteur de
   fichier (`-H @<(...)`) — jamais en argv (pas d'exposition `/proc/<pid>/cmdline`). Fallback clé en

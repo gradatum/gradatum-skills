@@ -14,6 +14,7 @@ Deux skills livrés en phase 1 :
 | `/gradatum-vault-read` | L0 | Lit le contenu COMPLET d'une note par chemin (`POST /api/v1/vault_read`). Complément de vault-search (qui ne renvoie que des ULID). | ✅ LIVRÉ |
 | `/gradatum-lessons-recall` | L0 | Recall des leçons apprises (F-60) par classe (`GET /api/v1/lessons/recall`). Recall JIT avant un gate à risque. | ✅ LIVRÉ |
 | `/gradatum-vault-timeline` | L0 | Requête temporelle du vault (`POST /api/v1/vault_timeline`, fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
+| `/gradatum-vault-write` | L0 | Écriture vault (`POST /api/v1/vault_write`) — create + update in-place RMW (concurrence-safe sha256). Corps sur stdin, poll async, garde anti-doublon. | ✅ LIVRÉ |
 | `/gradatum-skill-reminder` | L1 | Métamémoire auto-déclenchée — détermine si le contexte courant nécessite une recherche vault, délègue à `/gradatum-vault-search`. Pure logique de décision. | ✅ LIVRÉ |
 
 ### /gradatum-vault-search (L0 — atomique HTTP)
@@ -60,6 +61,7 @@ ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-search ~/.claude/skills/
 ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-read ~/.claude/skills/gradatum-vault-read
 ln -sf ~/projects/gradatum-skills/skills/gradatum-lessons-recall ~/.claude/skills/gradatum-lessons-recall
 ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-timeline ~/.claude/skills/gradatum-vault-timeline
+ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-write ~/.claude/skills/gradatum-vault-write
 ln -sf ~/projects/gradatum-skills/skills/gradatum-skill-reminder ~/.claude/skills/gradatum-skill-reminder
 ```
 

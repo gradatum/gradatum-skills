@@ -51,14 +51,15 @@ fi
 case "$MODE" in
   create)
     [ -n "$SECTION" ] || { echo "Erreur : --section requis en mode create" >&2; exit 1; }
-    PAYLOAD=$(jq -n --arg s "$SECTION" --arg t "$TITLE" --arg b "$BODY" --argjson tags "$TAGS_JSON" \
-      '{section_hint:$s, title:$t, body:$b, tags:$tags, author:"skill", tenant_id:"main"}')
+    # body via stdin à jq (`-Rs` raw-slurp → `.`) : immunise contre ARG_MAX sur corps long.
+    PAYLOAD=$(printf '%s' "$BODY" | jq -Rs --arg s "$SECTION" --arg t "$TITLE" --argjson tags "$TAGS_JSON" \
+      '{section_hint:$s, title:$t, body:., tags:$tags, author:"skill", tenant_id:"main"}')
     ;;
   update)
     [ -n "$NOTE_ID" ] || { echo "Erreur : --note-id requis en mode update" >&2; exit 1; }
     [[ "$SHA" =~ ^[0-9a-f]{64}$ ]] || { echo "Erreur : --sha doit être 64 hex lowercase (obtenu via vault-read)" >&2; exit 1; }
-    PAYLOAD=$(jq -n --arg n "$NOTE_ID" --arg sha "$SHA" --arg s "$SECTION" --arg t "$TITLE" --arg b "$BODY" --argjson tags "$TAGS_JSON" \
-      '{note_id:$n, expected_sha256:$sha, title:$t, body:$b, tags:$tags, tenant_id:"main"}
+    PAYLOAD=$(printf '%s' "$BODY" | jq -Rs --arg n "$NOTE_ID" --arg sha "$SHA" --arg s "$SECTION" --arg t "$TITLE" --argjson tags "$TAGS_JSON" \
+      '{note_id:$n, expected_sha256:$sha, title:$t, body:., tags:$tags, tenant_id:"main"}
        + (if $s != "" then {section_hint:$s} else {} end)')
     ;;
   *) echo "Erreur : mode doit être 'create' ou 'update'" >&2; exit 1 ;;
@@ -75,10 +76,10 @@ JWT_RESP=$(curl -sS -X POST "$GRADATUM_URL/auth/exchange" \
 JWT=$(printf '%s' "$JWT_RESP" | jq -r '.token // empty')
 [ "${#JWT}" -ge 50 ] || { echo "Erreur : JWT invalide" >&2; exit 1; }
 
-# --- POST vault_write (202 async) ---
-WR_RESP=$(curl -sS -X POST "$GRADATUM_URL/api/v1/vault_write" \
+# --- POST vault_write (202 async) — payload via stdin (--data-binary @-) : immunise ARG_MAX corps long ---
+WR_RESP=$(printf '%s' "$PAYLOAD" | curl -sS -X POST "$GRADATUM_URL/api/v1/vault_write" \
   -H @<(printf 'Authorization: Bearer %s\n' "$JWT") \
-  -H "Content-Type: application/json" --max-time 10 --fail-with-body -d "$PAYLOAD" 2>&1) || {
+  -H "Content-Type: application/json" --max-time 10 --fail-with-body --data-binary @- 2>&1) || {
   echo "Erreur : vault_write KO : $WR_RESP" >&2; exit 1; }
 JOB_ID=$(printf '%s' "$WR_RESP" | jq -r '.job_id // empty')
 NOTE_OUT=$(printf '%s' "$WR_RESP" | jq -r '.note_id // empty')
@@ -88,7 +89,8 @@ NOTE_OUT=$(printf '%s' "$WR_RESP" | jq -r '.note_id // empty')
 STATUS=""
 for _ in $(seq 1 20); do
   POLL=$(curl -sS "$GRADATUM_URL/api/v1/jobs/$JOB_ID/v2" \
-    -H @<(printf 'Authorization: Bearer %s\n' "$JWT") --max-time 5 2>&1) || break
+    -H @<(printf 'Authorization: Bearer %s\n' "$JWT") --max-time 5 2>&1) || {
+    echo "⚠️ poll curl KO (réseau ?) — job_id=$JOB_ID, vérifier l'état manuellement" >&2; break; }
   STATUS=$(printf '%s' "$POLL" | jq -r '.lifecycle.status // .status // empty')
   case "$STATUS" in
     Done|Conflict|Failed|DLQ|Cancelled) break ;;
