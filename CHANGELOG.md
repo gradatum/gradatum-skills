@@ -16,6 +16,14 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 - `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault
   (`POST /api/v1/vault_timeline`, fenêtre epoch ms, filtre `Static`/`Event`). Script `scripts/timeline.sh`.
 
+### Added — couche L0 code
+- `skills/gradatum-code-map/` — L0 atomique : interroge la carte de code dérivée d'un projet
+  (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter zéro-LLM). 3 modes `query`/`symbol`/
+  `path` + option corps exact (`body`). Budget tokens adaptatif (`GRADATUM_BUDGET_TOKENS`, bump auto
+  en mode body), flags truncation affichés, garde charset vault `^code-[a-z0-9-]+$`. Pattern 2 passes
+  (signatures → body sur retenus). Script `scripts/scope.sh`. Council Art.19 (Auditeur APPROVED).
+  Version PUBLIQUE (root-bridge homelab retiré, refresh délégué à `gradatum-admin code ingest/update`).
+
 ### Added — couche L0 écriture
 - `skills/gradatum-vault-write/` — L0 atomique : écriture vault (`POST /api/v1/vault_write`), modes
   **create** (note neuve) et **update** in-place (RMW `note_id` + `expected_sha256`, concurrence-safe :
