@@ -56,7 +56,29 @@ Ou si aucun résultat :
 2. **Action de lecture** : invoquer `mcp__gradatum__vault_read` avec `note_id="<ulid>"`
    pour récupérer le contenu détaillé d'un résultat pertinent.
 
-3. **Si N=0** : pas d'historique vault sur ce sujet — ce n'est pas un échec.
+3. **Si N=0** : pas d'historique vault **classé** sur ce sujet — ce n'est pas un échec.
+
+4. **Preuve d'absence (`corpus_match_count`)** — usage avancé, off par défaut. La recherche est
+   **hybride** (lexicale BM25/FTS5 ∪ sémantique vectorielle) : les `N` résultats incluent **toujours**
+   des voisins sémantiques. Conséquence attendue (cas nominal, pas une anomalie) : sur une query dont
+   aucun mot n'est dans le corpus, on observe `N>0` (voisins sémantiques) **avec** `corpus_match_count=0`.
+   Donc `N>0` ne prouve jamais qu'une note traite réellement du sujet. Activer cette preuve d'absence
+   seulement quand le besoin est strict : avant d'affirmer « on n'a jamais écrit le terme X », ou un
+   anti-doublon sur un terme court/ambigu (acronyme, nom propre) — pour un titre descriptif normal,
+   `N` + scores suffisent (ne pas payer le coût systématiquement).
+
+   Activation : `GRADATUM_INCLUDE_CORPUS_COUNT=1` (gradatum **≥ v0.5.2**). La sortie ajoute alors
+   `corpus_match_count=<n>` = nombre de **matchs lexicaux** (BM25/FTS5) de la query dans tout le corpus
+   — compteur **lexical**, indépendant du ranking et **découplé de `N`**.
+   - `corpus_match_count=0` ⇒ **aucun match lexical** : absence prouvée du terme. Les résultats
+     affichés (même si `N>0`, cas attendu) sont exclusivement des voisins sémantiques → à écarter
+     pour un « a-t-on déjà ce terme ? ».
+   - `corpus_match_count>0` ⇒ des notes contiennent les termes. Si elles ne figurent pas dans le
+     top-K affiché, elles ont été déclassées par le ranking — relancer **une nouvelle recherche**
+     avec un `GRADATUM_REMINDER_TOP_K` plus élevé ou une query affinée (ce n'est pas un retour
+     automatique : c'est un appel explicite supplémentaire, à faire seulement si le besoin le justifie).
+   - Sur gradatum **< v0.5.2** le compteur est absent (ligne non affichée) — pas de preuve d'absence
+     disponible, seulement l'absence de résultat classé.
 
 ## Variables d'environnement (optionnelles)
 
@@ -66,6 +88,7 @@ Ou si aucun résultat :
 | `GRADATUM_API_KEY_FILE` | `/etc/gradatum/claude-code.api-key` | Fichier contenant la clé API |
 | `GRADATUM_REMINDER_TOP_K` | `10` | Nombre max de résultats retournés |
 | `GRADATUM_REMINDER_LOG` | `0` | `1` pour activer le log dans `/tmp/gradatum-reminder-stats.log` |
+| `GRADATUM_INCLUDE_CORPUS_COUNT` | `0` | `1` → ajoute `corpus_match_count` (preuve d'absence ; gradatum ≥ v0.5.2) |
 
 ## Erreurs
 

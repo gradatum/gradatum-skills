@@ -46,10 +46,11 @@ BODY
 Pour modifier une note existante SANS créer de doublon :
 
 1. Lire la note d'abord : `/gradatum-vault-read "<section>/<ulid>"` → récupérer le **`sha256`** ET le
-   **corps actuel complet** (pour composer la version de remplacement intégrale). La réponse `vault-read`
-   **ne contient pas de champ `title`** — le `--title` doit provenir d'une source connue (résultat
-   `/gradatum-vault-search`, ou la première ligne du corps lu), jamais de la réponse `vault-read`
-   (voir Anti-patterns).
+   **corps actuel complet** (pour composer la version de remplacement intégrale). Le `--title` doit
+   provenir d'une **source connue** (résultat `/gradatum-vault-search`, ou la 1ʳᵉ ligne de titre du
+   corps lu) — c'est la règle canonique, cross-version-safe. La réponse `vault-read` n'expose un champ
+   `title` **qu'à partir de gradatum v0.5.2** (absent sur ≤ v0.4.3) ; ne pas s'en servir comme source
+   **unique** du titre si la version cible peut être ≤ v0.4.3 (voir Anti-patterns).
 2. Écrire avec le `note_id` + le `sha256` lu :
 
 ```bash
@@ -90,9 +91,12 @@ jusqu'à un état terminal. Output :
 
 - Ne JAMAIS créer une note sans chercher d'abord (doublon).
 - Ne JAMAIS faire un `update` sans le `sha256` frais de la note (concurrence-safe).
-- Ne JAMAIS passer `--title` depuis la réponse de `/gradatum-vault-read` : ce champ n'existe pas dans sa
-  sortie — la valeur serait littéralement `"null"`, corrompant le titre silencieusement (exit 0).
-  Conserver le titre depuis `/gradatum-vault-search` ou la première ligne du corps lu.
+- Provenance du `--title` (version-aware) — **règle canonique, toujours safe** : sourcer le titre
+  depuis `/gradatum-vault-search` (champ `title` du résultat) **ou** la 1ʳᵉ ligne de titre du corps lu.
+  Ne JAMAIS faire de la réponse `/gradatum-vault-read` la source **unique** du `--title`. Pourquoi : sur
+  gradatum **≤ v0.4.3**, `vault-read` n'expose aucun champ `title` → l'y sourcer écrirait littéralement
+  `"null"`, corrompant le titre silencieusement (exit 0) ; à partir de **v0.5.2** le champ existe
+  (== `vault_search`), mais le sourcer en aveugle sur une version cible inconnue reste un risque.
 - Ne pas écrire de contenu éphémère (détails de debug jetables, état de session) — le vault est durable.
 - Le titre doit être spécifique : « Note sur X » est un mauvais titre.
 - Ne JAMAIS deviner la section sans consulter les 11 sections canoniques ci-dessus — une décision

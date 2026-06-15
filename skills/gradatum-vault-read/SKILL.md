@@ -38,13 +38,18 @@ Le chemin est `<section>/<ulid>`. Les sections canoniques : `architecture`, `dec
 
 ```
 📄 <path>  [section: <section>]
+title: <titre>   (présent à partir de gradatum v0.5.2 ; ligne omise sinon)
 sha256: <hash>   (à fournir à vault_write pour une MAJ in-place)
 ---
 <contenu markdown intégral>
 ```
 
-> Note : `vault_read` ne renvoie pas de champ `title` séparé — le titre est la 1ʳᵉ ligne de
-> titre du corps markdown. L'en-tête affiche le `path` + la `section`.
+> Note (champ `title`, version-aware) : `vault_read` renvoie un champ `title` séparé **à partir de
+> gradatum v0.5.2** (la ligne `title:` n'apparaît que s'il est présent et non vide). Sur gradatum
+> **≤ v0.4.3** ce champ est absent — le titre est alors la 1ʳᵉ ligne de titre du corps markdown.
+> Le script gère les deux familles de versions sans configuration. ⚠️ Pour une MAJ in-place, le
+> `--title` ne doit pas être sourcé uniquement depuis ce champ `title` — voir la règle de provenance
+> dans les Anti-patterns de `/gradatum-vault-write`.
 
 En cas de note absente : `📄 note introuvable : <path>` (exit ≠ 0).
 

@@ -51,11 +51,14 @@ READ_RESP=$(curl -sS -X POST "$GRADATUM_URL/api/v1/vault_read" \
 }
 
 # --- 4. Format sortie ---
-# vault_read ne renvoie PAS de champ `title` (clés = metadata/path/sha256/size_bytes) :
-# on affiche le path fourni + la section (metadata), puis le sha256 et le corps.
+# Champ `title` : présent à partir de gradatum v0.5.2 (peut être null si la note n'a ni
+# titre indexé ni H1 `# ` en tête de corps) ; ABSENT sur gradatum <= v0.4.3. Le filtre jq
+# `.title // empty` couvre les deux cas (affiché seulement si non-null et non-absent), donc
+# le script reste compatible avec les deux familles de versions sans détection explicite.
 printf '%s' "$READ_RESP" | jq -r --arg input "$PATH_ARG" '
   "📄 \($input)" +
   (if .metadata.section then "  [section: \(.metadata.section)]" else "" end) +
+  (if (.title // empty) != "" then "\ntitle: \(.title)" else "" end) +
   "\nsha256: \(.sha256 // "n/a")\n---\n\(.content // "(vide)")"
 ' 2>/dev/null || {
   echo "Erreur : réponse vault_read non parsable" >&2
