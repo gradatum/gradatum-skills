@@ -1,13 +1,7 @@
 ---
 name: gradatum-lessons-recall
 description: >
-  Rappelle les leçons apprises (lessons-learned) du vault gradatum (LIVE :19090) pour une
-  CLASSE donnée — le recall F-60. Invoquer AVANT une action appartenant à une classe à risque
-  (deploy, release, migration, anti-leak, auth-secrets, data-integrity…) pour récupérer les
-  leçons pertinentes au bon moment (Just-In-Time), au lieu de répéter une erreur passée.
-  Output compact : leçons par classe (ULID + titre + snippet). Pour une recherche LIBRE sur
-  les leçons (hors classe fixe), utiliser plutôt /gradatum-vault-search avec "lessons-learned"
-  dans la query. Composable par /gradatum-skill-reminder et par les gates de sécurité.
+  Rappelle les leçons du vault gradatum pour une CLASSE à risque (deploy/release/migration/anti-leak/auth-secrets/data-integrity…) — recall JIT F-60 avant action risquée. Output compact ULID+titre+snippet. Non bloquant. Composable par gradatum-skill-reminder et gates sécurité.
 type: gradatum
 compatibility: claude-code (>= 2.1.0)
 argument-hint: "<classe> [limit]"

@@ -1,13 +1,7 @@
 ---
 name: gradatum-memorize
 description: >
-  Décision de mémorisation — détermine si ce qui vient de se passer mérite d'être persisté
-  durablement dans le vault gradatum, et quelle section canonique lui convient, puis délègue à
-  /gradatum-vault-write. Invoquer après une DÉCISION actée, une LEÇON tirée d'une erreur, une
-  ANALYSE vérifiée, un POST-MORTEM, un RÉSULTAT d'expérience — réutilisable dans une future session.
-  SKIP si éphémère, état de travail, ou si l'information vit déjà dans le code ou git.
-  Distinct de /gradatum-skill-reminder (qui décide de CHERCHER, pas d'écrire). Pure logique —
-  compose /gradatum-vault-search (anti-doublon) puis /gradatum-vault-write.
+  Décide si un événement mérite persistance durable dans le vault gradatum + oriente vers la section canonique, puis délègue l'écriture. Après décision actée, leçon, post-mortem, résultat d'expérience. SKIP si éphémère ou déjà dans code/git.
 type: gradatum
 compatibility: claude-code (>= 2.1.0)
 ---
