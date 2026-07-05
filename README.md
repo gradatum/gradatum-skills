@@ -6,7 +6,7 @@ Composition L1 (logique de décision) → L0 (atomique HTTP). Stateless. Bash PO
 
 ## Phase 1 — Skills disponibles (v0.1.0)
 
-Deux skills livrés en phase 1 :
+Skills disponibles :
 
 | Skill | Niveau | Rôle | Statut |
 |---|---|---|---|
@@ -18,6 +18,7 @@ Deux skills livrés en phase 1 :
 | `/gradatum-code-map` | L0 | Carte de code dérivée (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter). Modes query/symbol/path + corps. Comprendre/naviguer du code sans lire les fichiers entiers. | ✅ LIVRÉ |
 | `/gradatum-memorize` | L1 | Décide QUOI persister durablement + route vers la bonne section, délègue à `/gradatum-vault-write`. Symétrique de skill-reminder (écrire vs chercher). Pure logique. | ✅ LIVRÉ |
 | `/gradatum-skill-reminder` | L1 | Métamémoire auto-déclenchée — détermine si le contexte courant nécessite une recherche vault, délègue à `/gradatum-vault-search`. Pure logique de décision. | ✅ LIVRÉ |
+| `gradatum-desktop` | MCP-only | Variante consolidée pour **Claude Desktop** via connecteur MCP (`/mcp` Streamable HTTP + Bearer) — aucun script local. Search-before-write, triage 11 sections, gatekeeper, prudence outils destructifs. Les autres skills ciblent Claude Code (Bash local) et ne fonctionnent pas sur Desktop. | ✅ LIVRÉ |
 
 ### /gradatum-vault-search (L0 — atomique HTTP)
 
