@@ -6,7 +6,10 @@ description: >
   recherche vault gradatum est pertinente et invoque /gradatum-vault-search avec les mots-clés
   extraits. SKIP si validation/négation seule ("oui", "go", "ok"), exécution commande directe,
   slash-command, salutation, ou prompt trivial (<10 caractères utiles).
-  Stateless. Zéro script propre — pure logique de décision.
+  Après le vault-search, tire la surface proactive F-46 (vault_proactive_recall sans context,
+  limit 3, non bloquant) et poste le feedback d'apprentissage dès la sélection des résultats
+  (vault_proactive_recall_feedback, liste vide valide). Logique de décision + 2 appels MCP
+  bornés côté CHERCHE ; le chemin SKIP reste zéro vault call.
 type: gradatum
 compatibility: claude-code (>= 2.1.0)
 ---
@@ -14,7 +17,9 @@ compatibility: claude-code (>= 2.1.0)
 # /gradatum-skill-reminder
 
 Déclencheur métamémoire — détermine si le prompt courant nécessite une recherche vault,
-et délègue à /gradatum-vault-search. Pure logique de décision, zéro script propre.
+délègue à /gradatum-vault-search et tire la surface proactive F-46 (recall pré-calculé +
+feedback d'apprentissage, best-effort assumé). Logique de décision + 2 appels MCP bornés
+côté CHERCHE ; le chemin SKIP reste zéro vault call ; le `recall_id` ne vit que le tour courant.
 
 ## Règles de décision (évaluées sur le prompt utilisateur courant)
 
@@ -43,7 +48,27 @@ et délègue à /gradatum-vault-search. Pure logique de décision, zéro script 
 1. Extraire 3 à 7 mots-clés sémantiques du prompt courant
    (verbes métier + objets concrets ; exclure les mots-vides)
 2. Invoquer `/gradatum-vault-search "<keywords concaténés>"`
-3. L'agent reçoit l'output et décide selon la doctrine portée par /gradatum-vault-search
+3. **Dans le même bloc d'actions**, appeler `mcp__gradatum__vault_proactive_recall` avec
+   `limit: 3` et **SANS `context`** — surface proactive PRÉ-CALCULÉE côté serveur (F-46),
+   complément orthogonal au keyword-search de l'étape 2 (ne pas re-passer les mots-clés :
+   `context` présent re-exécuterait le même RRF = redondance). **Non bloquant** :
+   échec/timeout → continuer sans (log 1 ligne), ne jamais bloquer la réponse ;
+   retenir le `recall_id` retourné.
+4. **Dès la sélection des résultats** (avant de rédiger la réponse), juger la pertinence des
+   notes du vault-search ET de la surface proactive — puis, si l'étape 3 a renvoyé un
+   `recall_id`, appeler AUSSITÔT `mcp__gradatum__vault_proactive_recall_feedback` avec
+   exactement `{recall_id, accepted_ulids}` (payload strict, `deny_unknown_fields` côté
+   serveur) où `accepted_ulids` = les ULIDs de la surface proactive jugés pertinents et
+   retenus pour informer la réponse. **Liste vide = feedback valide et attendu** (« rien de
+   pertinent » est le signal d'apprentissage le plus fréquent, pas une anomalie). Feedback =
+   MÊME tour, jamais différé ; **non bloquant** (échec du POST → continuer, log 1 ligne).
+   Si l'étape 3 a échoué (pas de `recall_id`), aucun feedback à poster.
+   *Best-effort assumé* : aucun vérificateur mécanique n'existe (dette enforcement tracée) —
+   l'anti-pattern d'omission ci-dessous est le levier de discipline.
+5. L'agent reçoit les deux sorties et décide selon la doctrine portée par /gradatum-vault-search.
+   La boucle F-46 est une **métrique d'usage** (quels items proactifs sont réellement
+   actionnés), pas un auto-tuning — ne pas en attendre une convergence rapide (source unique,
+   faible volume).
 
 ## Action si SKIP
 
@@ -80,4 +105,10 @@ Exemples valides :
 
 - Ne pas se substituer à /gradatum-vault-search pour la recherche effective
 - Ne pas interpréter les résultats de /gradatum-vault-search (délégué à l'agent appelant)
-- Ne pas mémoriser d'état entre invocations (stateless par design)
+- Ne pas mémoriser d'état entre invocations (le `recall_id` vit uniquement le temps du tour courant)
+- **Ne jamais clore un tour où `vault_proactive_recall` a renvoyé un `recall_id` sans avoir
+  posté `vault_proactive_recall_feedback`** : la dette de feedback est une obligation du même
+  tour. Liste vide autorisée ; c'est l'OMISSION — pas la liste vide — qui casse la boucle F-46.
+- Ne pas différer le feedback à un tour ultérieur, ni passer `context` au recall (redondance
+  RRF avec l'étape 2), ni gonfler `limit` au-delà de 3 sans révision (le skill fire à chaque
+  réponse substantielle — l'injection est multipliée par la fréquence).
