@@ -4,7 +4,9 @@ description: >
   Recall pré-action métamémoire — sur prompt utilisateur (question, recherche, brainstorming,
   diagnostic, amorce de tâche substantielle, décision, planification), détermine si une
   recherche vault gradatum est pertinente et invoque /gradatum-vault-search avec les mots-clés
-  extraits. SKIP si validation/négation seule ("oui", "go", "ok"), exécution commande directe,
+  extraits — ou /gradatum-vault-timeline à la place si besoin temporel PUR (fenêtre de
+  dates ou chronologie sans sujet métier identifiable).
+  SKIP si validation/négation seule ("oui", "go", "ok"), exécution commande directe,
   slash-command, salutation, ou prompt trivial (<10 caractères utiles).
   Après le vault-search, tire la surface proactive F-46 (vault_proactive_recall sans context,
   limit 3, non bloquant) et poste le feedback d'apprentissage dès la sélection des résultats
@@ -44,6 +46,22 @@ côté CHERCHE ; le chemin SKIP reste zéro vault call ; le `recall_id` ne vit q
 - **Trivial** (< 10 caractères utiles dans le prompt)
 
 ## Action si CHERCHE
+
+0. **Test temporel** (2 questions, zéro vault call, avant l'étape 1) :
+   **Q1 — signal temporel pur ?** Fenêtre bornée (« entre le X et le Y », « ces N derniers
+   jours »), chronologie exhaustive d'une période, ou snapshot SANS sujet (« l'état des
+   décisions au <date> »). NON ou doute → étapes 1-2 (défaut keyword-search).
+   **Q2 — bornes retirées, reste-t-il un terme métier identifiable ?**
+   - **NON** (temps sans sujet) → `/gradatum-vault-timeline <from_ms> <to_ms> [Static|Event]`
+     REMPLACE les étapes 1-2 ; étapes 3-5 inchangées (les « deux sorties » de l'étape 5 =
+     timeline + surface proactive). Bornes epoch ms TOUJOURS via commande — ex.
+     `TZ="Europe/Paris" date -d "2026-07-10 00:00:00" +%s%3N` (fin de fenêtre = dernier
+     jour 23:59:59.999) — jamais de calcul mental. NB : as-of via ce skill = fenêtre
+     d'ancres, pas validité as_of_ms.
+   - **OUI** (sujet+temps : « décisions sur le reranker cette semaine », « historique de
+     la migration X ») → étapes 1-2 normales ; bornage éventuel via l'outil MCP
+     `vault_search` (`from_ms`/`to_ms`, non exposés par le skill search). Ne PAS doubler
+     d'un appel timeline.
 
 1. Extraire 3 à 7 mots-clés sémantiques du prompt courant
    (verbes métier + objets concrets ; exclure les mots-vides)
