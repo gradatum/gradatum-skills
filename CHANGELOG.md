@@ -7,14 +7,21 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 > Développé en interne, pas encore publié (tag public synchronisé avec la release gradatum v0.5.2).
 
 ### Added — couche L0 lecture (set indispensable)
-- `skills/gradatum-vault-read/` — L0 atomique : lit le contenu COMPLET d'une note par chemin
-  (`POST /api/v1/vault_read`). Script `scripts/read.sh`. Complément de vault-search (qui ne renvoie
+- `skills/gradatum-vault-read/` — L0 atomique : lit le contenu COMPLET d'une note par chemin —
+  outil MCP natif `mcp__gradatum__vault_read`. Complément de vault-search (qui ne renvoie
   que des ULID). Output : path + section + sha256 + corps markdown.
-- `skills/gradatum-lessons-recall/` — L0 atomique : recall des leçons F-60 par classe
-  (`GET /api/v1/lessons/recall`, 12 classes contrôlées). Script `scripts/recall.sh`. Recall JIT
+- `skills/gradatum-lessons-recall/` — L0 atomique : recall des leçons F-60 par classe —
+  outil MCP natif `mcp__gradatum__vault_lessons_recall` (12 classes contrôlées). Recall JIT
   avant un gate à risque.
-- `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault
-  (`POST /api/v1/vault_timeline`, fenêtre epoch ms, filtre `Static`/`Event`). Script `scripts/timeline.sh`.
+- `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault —
+  outil MCP natif `mcp__gradatum__vault_timeline` (fenêtre epoch ms, filtre `Static`/`Event`).
+
+### Changed — migration MCP-native (council Art.19 Round 2, lot B révisé)
+- `skills/gradatum-vault-read/`, `skills/gradatum-lessons-recall/`, `skills/gradatum-vault-timeline/`
+  — appel direct de l'outil MCP au lieu du wrapper shell (les 3 scripts d'origine, qui compactaient
+  la réponse via `jq`, sont retirés). `gradatum-vault-search` et `gradatum-vault-write` restent des
+  wrappers (hors périmètre de ce lot). Coût mesuré : perte de compaction côté client (+83 %
+  `lessons-recall`, +53 % `vault-timeline` par appel) — voir note datée dans chaque SKILL.md.
 
 ### Added — couche L1 capture
 - `skills/gradatum-memorize/` — L1 pure-logique : décide QUOI persister durablement (décision/leçon/

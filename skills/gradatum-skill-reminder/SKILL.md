@@ -52,7 +52,8 @@ côté CHERCHE ; le chemin SKIP reste zéro vault call ; le `recall_id` ne vit q
    jours »), chronologie exhaustive d'une période, ou snapshot SANS sujet (« l'état des
    décisions au <date> »). NON ou doute → étapes 1-2 (défaut keyword-search).
    **Q2 — bornes retirées, reste-t-il un terme métier identifiable ?**
-   - **NON** (temps sans sujet) → `/gradatum-vault-timeline <from_ms> <to_ms> [Static|Event]`
+   - **NON** (temps sans sujet) → appeler directement l'outil **`mcp__gradatum__vault_timeline`**
+     avec `from_ms`/`to_ms` (et `doc_kind: Static|Event` si le filtre s'applique) — ceci
      REMPLACE les étapes 1-2 ; étapes 3-5 inchangées (les « deux sorties » de l'étape 5 =
      timeline + surface proactive). Bornes epoch ms TOUJOURS via commande — ex.
      `TZ="Europe/Paris" date -d "2026-07-10 00:00:00" +%s%3N` (fin de fenêtre = dernier
