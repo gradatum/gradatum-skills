@@ -58,8 +58,14 @@ SKILL_MD="$SKILL_DIR/SKILL.md"
   grep -q "CATÉGORIE" "$SKILL_MD"
 }
 
-@test "SKILL.md mentionne le caractère stateless" {
-  grep -qi "stateless" "$SKILL_MD"
+@test "SKILL.md atteste l'absence d'état entre invocations" {
+  # DETTE ANTI-RÉGRESSION : l'assertion porte sur la PROPRIÉTÉ (le skill ne mémorise pas
+  # d'état d'un tour à l'autre), PAS sur un vocabulaire. Ne PAS re-clouer à un mot :
+  # le token anglais « stateless » a été épuré par le refacto F-46 alors que la propriété
+  # tenait toujours — c'est ce clouage lexical qui avait produit une suite rouge silencieuse.
+  # Double ancre indépendante : le test ne rougit que si la propriété disparaît des DEUX
+  # formulations, c.-à-d. si elle n'est réellement plus documentée (rouge alors légitime).
+  grep -qiE "état entre invocations|tour courant" "$SKILL_MD"
 }
 
 @test "SKILL.md mentionne les anti-patterns" {
