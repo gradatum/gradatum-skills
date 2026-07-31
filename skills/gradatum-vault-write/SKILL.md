@@ -32,7 +32,7 @@ rester une source unique par sujet, pas une accumulation de variantes.
 BODY
 ```
 
-- `--section` : une des 11 sections canoniques (ci-dessous).
+- `--section` : une des sections canoniques (ci-dessous).
 - `--title` : titre factuel et spécifique (verbe + objet + résultat).
 - `--tags` : liste `a,b,c` (optionnel — le curator peut en ajouter).
 - **Corps** : sur stdin (heredoc `<<'BODY' ... BODY`).
@@ -63,10 +63,22 @@ BODY
   lecture et l'écriture → job **`Conflict`** (la note n'est PAS écrasée) → re-lire, ré-appliquer.
 - Le corps fourni REMPLACE le corps entier (fournir la version complète, pas un diff).
 
-## 11 sections canoniques
+## Sections canoniques
 
 `architecture` · `decisions` · `council` · `debug` · `reasoning` · `feedback` · `lessons-learned` ·
-`retrospectives` · `experiments` · `agent-issues` · `reference`
+`retrospectives` · `experiments` · `agent-issues` · `reference` · `project-map`
+
+**Aucun compte n'est gravé ici, délibérément** : un nombre dupliqué dérive, et cette liste a
+annoncé « 11 » pendant que la taxonomie s'étendait. Cette énumération est un **reflet
+opérationnel** de `Section::ALL` (le code serveur fait foi) ; le gel de gouvernance de la
+taxonomie vit dans NOMENCLATURE §10a — pas de cardinal gravé ici.
+
+⚠️ `project-map` est **hint-only** : le curator ne peut jamais l'attribuer par heuristique, seul
+un `section_hint` explicite y écrit. Une carte y est en outre **insupprimable** — écrire dans
+cette section engage définitivement.
+
+⚠️ La section `identity` existe côté serveur (âmes d'agents, runtime) mais **n'est pas une cible
+de mémorisation** : elle ne reçoit pas d'événements et n'entre pas dans ce choix.
 
 ## Comportement asynchrone
 
@@ -99,6 +111,6 @@ jusqu'à un état terminal. Output :
   (== `vault_search`), mais le sourcer en aveugle sur une version cible inconnue reste un risque.
 - Ne pas écrire de contenu éphémère (détails de debug jetables, état de session) — le vault est durable.
 - Le titre doit être spécifique : « Note sur X » est un mauvais titre.
-- Ne JAMAIS deviner la section sans consulter les 11 sections canoniques ci-dessus — une décision
+- Ne JAMAIS deviner la section sans consulter les sections canoniques ci-dessus — une décision
   rangée dans `debug`, ou un fait d'architecture dans `decisions`, casse le routage sémantique des
   recherches futures (la section est la dimension de routage principale).

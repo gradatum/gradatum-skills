@@ -46,13 +46,12 @@ SKILL_MD="$SKILL_DIR/SKILL.md"
   grep -q "gradatum-vault-search" "$SKILL_MD"
 }
 
-@test "SKILL.md contient la liste des 11 sections canoniques" {
-  # Vérifier la présence de quelques sections canoniques clés
-  grep -q "decisions" "$SKILL_MD"
-  grep -q "council" "$SKILL_MD"
-  grep -q "lessons-learned" "$SKILL_MD"
-  grep -q "architecture" "$SKILL_MD"
-  grep -q "retrospectives" "$SKILL_MD"
+@test "SKILL.md délègue les sections canoniques à l'autorité /gradatum-vault-write" {
+  # Le lot répudie tout cardinal gravé : le SKILL ne doit plus énumérer ni compter les
+  # sections canoniques (la taxonomie évolue — tout nombre gravé dérive), mais pointer vers
+  # l'autorité unique. On atteste la délégation, pas une liste ni un compte.
+  grep -q "Sections canoniques" "$SKILL_MD"
+  grep -q "gradatum-vault-write" "$SKILL_MD"
 }
 
 @test "SKILL.md contient la convention de titre vault" {

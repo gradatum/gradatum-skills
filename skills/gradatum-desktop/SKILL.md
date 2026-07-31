@@ -4,7 +4,7 @@ description: >
   À déclencher quand l'utilisateur veut retrouver une décision/note/bug passé,
   mémoriser ou archiver une information, ou interroge sa base de connaissance
   gradatum via le connecteur MCP (Claude Desktop, pure MCP — aucun script local).
-  Couvre : search-before-write, triage 11 sections, format de titre, anti-rejet
+  Couvre : search-before-write, triage des sections, format de titre, anti-rejet
   gatekeeper, prudence outils destructifs. Mots-clés : vault, gradatum, mémoire,
   chercher, note, décision, souviens-toi, archive.
 type: gradatum
@@ -60,7 +60,7 @@ similaire existe : enrichir, pas dupliquer).
   `vault_timeline` · graphe de liens : `vault_links` / `vault_trace` ·
   code indexé : `code_scope` (vaults `code-<projet>`).
 
-## Écrire — via `vault_write`, triage section (11 sections, liste fermée)
+## Écrire — via `vault_write`, triage section (copie locale MCP-only — resynchroniser depuis `/gradatum-vault-write` à chaque extension de la taxonomie ; ce runtime n'a pas accès filesystem à cette autorité)
 
 Écriture via **`vault_write`** — passez la section choisie en `section_hint`
 (évite la re-classification serveur) :
@@ -78,6 +78,16 @@ similaire existe : enrichir, pas dupliquer).
 | Hypothèse testée + résultat (positif OU négatif) | `experiments` |
 | Erreur récurrente d'un agent | `agent-issues` |
 | Pointeur vers un système externe | `reference` |
+| Unité de travail à cycle de vie, statut → `DONE`, rattachée à une version | `project-map` (**hint-only** — `section_hint` explicite requis, jamais par heuristique ; writer dédié canonique `/gov-todo`, indisponible en MCP-only) |
+
+⚠️ **`project-map` est une carte, pas une note** : insupprimable (`PROTECTED_DELETE`, sans
+bypass), hors synchronisation `/gov-todo`↔TODO.md. Depuis ce runtime **MCP-only, ne pas écrire
+directement dans `project-map`** — signaler à l'opérateur que la carte doit être créée via
+`/gov-todo` en Claude Code.
+
+> Reflet opérationnel de `Section::ALL` (code serveur, source publique) — liste normative
+> détaillée dans `/gradatum-vault-write` (Claude Code). Gel de gouvernance de cette taxonomie
+> acté en interne (réf. NOMENCLATURE §10a, homelab).
 
 Distinctions : `debug` = 1er incident, `lessons-learned` = consolidation ≥ 2× ;
 `decisions` = arbitrage ponctuel, `retrospectives` = bilan multi-tâches.

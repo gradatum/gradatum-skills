@@ -30,9 +30,10 @@ Outil atomique de lecture d'une note gradatum par chemin. Complément naturel de
 /gradatum-vault-read "decisions/01KV2P38DTQ0V9H9581GF0RVTQ"
 ```
 
-Le chemin est `<section>/<ulid>`. Les sections canoniques : `architecture`, `decisions`,
-`council`, `debug`, `reasoning`, `feedback`, `lessons-learned`, `retrospectives`,
-`experiments`, `agent-issues`, `reference`.
+Le chemin est `<section>/<ulid>`. Sections : reflet opérationnel de `Section::ALL` (le code
+serveur fait foi) — liste normative dans `/gradatum-vault-write` §Sections canoniques, gel de
+gouvernance NOMENCLATURE §10a. Inclut `project-map` (écriture hint-only, lecture normale par
+ce chemin).
 
 ## Output
 

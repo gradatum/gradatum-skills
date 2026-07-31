@@ -94,21 +94,12 @@ Ne rien faire. Pas d'output. Traiter le prompt normalement.
 
 ## Sections canoniques gradatum
 
-Les 11 sections canoniques ci-dessous sont **gelées**. Toute extension requiert une révision documentaire dédiée.
+Liste et sémantique des sections : **autorité unique `/gradatum-vault-write`** (reflet
+opérationnel de `Section::ALL`, code serveur). Gel de gouvernance de cette taxonomie acté en
+interne (réf. NOMENCLATURE §10a, homelab). Ne pas la recopier ici et ne graver aucun compte —
+un nombre dupliqué dérive : ce fichier a annoncé « 11 » pendant deux extensions de la
+taxonomie.
 
-| Section | Contenu typique |
-|---|---|
-| `architecture` | Analyses vérifiées, patterns archi transversaux, ADRs techniques |
-| `decisions` | Décisions stratégiques, arbitrages techniques unitaires, ADRs |
-| `council` | Verdicts de révision structurante, arbitrages transversaux |
-| `debug` | Symptômes + fix incident isolé (non récurrent — récurrence ≥2× → lessons-learned) |
-| `reasoning` | Patterns de planification réutilisables |
-| `feedback` | Retours utilisateur ancrés projet + constat daté |
-| `lessons-learned` | Consolidation multi-incidents en leçon pattern-scoped (récurrence ≥ 2×) |
-| `retrospectives` | Post-mortem fin de phase / milestone / release |
-| `experiments` | Hypothèses testées + résultats (positifs ou négatifs) |
-| `agent-issues` | Issues agents détectées (high/medium/low) |
-| `reference` | Pointeurs vers systèmes externes (docs upstream, dashboards, tickets) |
 
 ## Convention titre vault (anti-doublon)
 

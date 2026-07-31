@@ -44,6 +44,19 @@ Un seul NON → SKIP.
 - **Retour utilisateur ancré** (validation, correction) → section `feedback`.
 - **Pointeur externe** (doc, ticket, dashboard) → section `reference`.
 - **Plan / pattern de raisonnement réutilisable** → section `reasoning`.
+- **Issue d'agent** (skill défaillant, comportement anormal, dérive) → section `agent-issues`.
+- **Unité de travail à cycle de vie** — statut qui progresse jusqu'à `DONE`, destinée à une
+  version → section `project-map`. C'est une **carte**, pas un événement. Deux différences qui
+  changent tout : la section est **hint-only** (sans `section_hint` explicite la note part
+  ailleurs *sans erreur*) et une carte y est **insupprimable**. Writer dédié : **`/gov-todo`**
+  (verbes `project-map`, NOMENCLATURE §10e), **réservé au Général en Chef** — les sous-agents en
+  sont interdits. Si l'agent courant n'est pas le Général → **escalader au Général**, ne jamais
+  écrire directement dans `project-map`.
+
+> La liste des sections dans `/gradatum-vault-write` est un **reflet opérationnel** de
+> `Section::ALL` (le code serveur fait foi) ; le gel de gouvernance de la taxonomie vit dans
+> NOMENCLATURE §10a.
+> `identity` n'y est pas une cible : elle porte le runtime des âmes, pas des événements.
 
 ### SKIP — ne rien persister si :
 - État de travail transitoire, contenu de session, TODO jetable.
