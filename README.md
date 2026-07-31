@@ -11,9 +11,9 @@ Skills disponibles :
 | Skill | Niveau | Rôle | Statut |
 |---|---|---|---|
 | `/gradatum-vault-search` | L0 | Wrapper HTTP atomique sur `POST /api/v1/vault_search` du serveur gradatum (`:19090`). Script Bash POSIX `scripts/search.sh`. | ✅ LIVRÉ |
-| `/gradatum-vault-read` | L0 | Lit le contenu COMPLET d'une note par chemin (`POST /api/v1/vault_read`). Complément de vault-search (qui ne renvoie que des ULID). | ✅ LIVRÉ |
-| `/gradatum-lessons-recall` | L0 | Recall des leçons apprises (F-60) par classe (`GET /api/v1/lessons/recall`). Recall JIT avant un gate à risque. | ✅ LIVRÉ |
-| `/gradatum-vault-timeline` | L0 | Requête temporelle du vault (`POST /api/v1/vault_timeline`, fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
+| `/gradatum-vault-read` | L0 | Lit le contenu COMPLET d'une note par chemin — outil MCP natif `mcp__gradatum__vault_read`. Complément de vault-search (qui ne renvoie que des ULID). | ✅ LIVRÉ |
+| `/gradatum-lessons-recall` | L0 | Recall des leçons apprises (F-60) par classe — outil MCP natif `mcp__gradatum__vault_lessons_recall`. Recall JIT avant un gate à risque. | ✅ LIVRÉ |
+| `/gradatum-vault-timeline` | L0 | Requête temporelle du vault — outil MCP natif `mcp__gradatum__vault_timeline` (fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
 | `/gradatum-vault-write` | L0 | Écriture vault (`POST /api/v1/vault_write`) — create + update in-place RMW (concurrence-safe sha256). Corps sur stdin, poll async, garde anti-doublon. | ✅ LIVRÉ |
 | `/gradatum-code-map` | L0 | Carte de code dérivée (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter). Modes query/symbol/path + corps. Comprendre/naviguer du code sans lire les fichiers entiers. | ✅ LIVRÉ |
 | `/gradatum-memorize` | L1 | Décide QUOI persister durablement + route vers la bonne section, délègue à `/gradatum-vault-write`. Symétrique de skill-reminder (écrire vs chercher). Pure logique. | ✅ LIVRÉ |
@@ -57,22 +57,37 @@ Détails : `docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md`
 
 ## Installation (locale, dev)
 
-Symlinks depuis `~/.claude/skills/` vers ce projet :
+**Copies figées depuis un commit, jamais un symlink vers ce dépôt.** `git archive` lit l'objet
+commit, pas le répertoire de travail — la commande ci-dessous installe donc toujours l'état
+commité, même si le worktree a des modifications en cours :
 
 ```bash
-ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-search ~/.claude/skills/gradatum-vault-search
-ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-read ~/.claude/skills/gradatum-vault-read
-ln -sf ~/projects/gradatum-skills/skills/gradatum-lessons-recall ~/.claude/skills/gradatum-lessons-recall
-ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-timeline ~/.claude/skills/gradatum-vault-timeline
-ln -sf ~/projects/gradatum-skills/skills/gradatum-vault-write ~/.claude/skills/gradatum-vault-write
-ln -sf ~/projects/gradatum-skills/skills/gradatum-code-map ~/.claude/skills/gradatum-code-map
-ln -sf ~/projects/gradatum-skills/skills/gradatum-memorize ~/.claude/skills/gradatum-memorize
-ln -sf ~/projects/gradatum-skills/skills/gradatum-skill-reminder ~/.claude/skills/gradatum-skill-reminder
+mkdir -p ~/.claude/skills
+REF="$(git -C ~/projects/gradatum-skills rev-parse HEAD)"
+git -C ~/projects/gradatum-skills archive "$REF" skills \
+  | tar -x --strip-components=1 -C ~/.claude/skills
 ```
+
+Pour installer un commit ou un tag précis plutôt que le dernier : remplacer la ligne `REF=` par
+`REF=<commit-ou-tag>`.
+
+### Pourquoi pas un symlink
+
+Un symlink transforme chaque écriture dans le dépôt en activation immédiate côté runtime : il
+n'y a plus de délai entre modifier et exécuter, donc plus de fenêtre pour un commit, une revue
+ou un verdict de council — les gates du projet supposent tous ce délai, le symlink le supprime
+en silence. Décision actée : `decisions/01KYX31HZVW04AQC6ZCJ9T912W`.
+
+### Contrepartie : dérive possible
+
+La copie peut diverger du dépôt dès qu'un commit ultérieur modifie un skill installé — rien ne
+la resynchronise automatiquement, il n'existe pas encore d'outil dédié (dette assumée). Après
+tout commit touchant un skill déjà installé, relancer manuellement la commande d'archive
+ci-dessus pour le remettre à jour.
 
 ## Wire-up (CLAUDE.md anchor)
 
-Les symlinks ci-dessus exposent les skills, mais l'invocation **systématique** de `/gradatum-skill-reminder` repose sur la discipline LLM (pas de hook par design — portabilité multi-agent). Sans la règle suivante dans votre fichier de configuration harness, le skill ne sera invoqué que sporadiquement.
+La copie ci-dessus expose les skills, mais l'invocation **systématique** de `/gradatum-skill-reminder` repose sur la discipline LLM (pas de hook par design — portabilité multi-agent). Sans la règle suivante dans votre fichier de configuration harness, le skill ne sera invoqué que sporadiquement.
 
 Ajouter à votre fichier harness (Claude Code : `~/CLAUDE.md` · goose : `~/.config/goose/config.yaml` · gemini-cli : `~/.gemini/GEMINI.md` · open-code : à évaluer) :
 
