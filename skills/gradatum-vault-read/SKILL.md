@@ -32,9 +32,9 @@ Appeler directement l'outil **`mcp__gradatum__vault_read`** avec `path = "<secti
 comportement exact ; ne pas le dupliquer ici.
 
 Le chemin est `<section>/<ulid>`. Sections : reflet opérationnel de `Section::ALL` (le code
-serveur fait foi) — liste normative dans `/gradatum-vault-write` §Sections canoniques, gel de
-gouvernance NOMENCLATURE §10a. Inclut `project-map` (écriture hint-only, lecture normale par ce
-chemin).
+serveur fait foi) — liste normative dans `/gradatum-vault-write` §Sections canoniques ; la
+gouvernance de cette taxonomie relève de l'installation. Inclut `project-map` (écriture
+hint-only, lecture normale par ce chemin).
 
 ## Output
 

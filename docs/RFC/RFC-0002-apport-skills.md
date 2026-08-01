@@ -78,7 +78,7 @@ Phase 2 outputs
 
 ### 2.3 Bénéfices
 
-- **Producers interchangeables.** Phase 2 (auto-mining) n'est plus le seul fournisseur. À terme, on peut ajouter : création manuelle UI, import externe (Anthropic skills, vaults tiers Gradatum, vault-mem v1.6.x predecessor en migration). Chacun implémente le même `Producer` trait.
+- **Producers interchangeables.** Phase 2 (auto-mining) n'est plus le seul fournisseur. À terme, on peut ajouter : création manuelle UI, import externe (Anthropic skills, vaults tiers Gradatum, système de mémoire prédécesseur en migration). Chacun implémente le même `Producer` trait.
 - **Consumers découplés.** L'external validation (§7 du RFC self-improvement) devient un Consumer parmi d'autres. Idem pour des futurs consumers (skill executor, MCP server gateway).
 - **Évolution sans casse.** Ajouter un producer ou un consumer = nouvelle impl, pas une modification du registry.
 

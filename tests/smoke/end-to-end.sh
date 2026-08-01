@@ -9,14 +9,27 @@
 # Usage  : bash tests/smoke/end-to-end.sh
 # Exit   : 0 = tous les checks OK, 1 = au moins un check KO
 #
+# IDENTITÉ — aucune valeur par défaut, par construction. L'emplacement du
+# fichier de clé est une valeur d'INSTALLATION, propre à chaque déploiement :
+# ce dépôt public ne prescrit pas où poser un credential, et ne nomme pas qui
+# le consomme.
+#
 # Variables d'environnement :
-#   GRADATUM_URL         (défaut : http://<gradatum-server>)
-#   GRADATUM_API_KEY_FILE (défaut : /etc/gradatum/claude-code.api-key)
+#   GRADATUM_URL          (défaut : http://<gradatum-server>)
+#   GRADATUM_API_KEY_FILE (REQUISE — chemin du fichier de clé)
 
 set -euo pipefail
 
 GRADATUM_URL="${GRADATUM_URL:-http://<gradatum-server>}"
-API_KEY_FILE="${GRADATUM_API_KEY_FILE:-/etc/gradatum/claude-code.api-key}"
+API_KEY_FILE="${GRADATUM_API_KEY_FILE:-}"
+
+if [ -z "$API_KEY_FILE" ]; then
+  echo "FAIL — IDENTITÉ INDISPONIBLE : GRADATUM_API_KEY_FILE non définie." >&2
+  echo "       L'emplacement du fichier de clé est une valeur d'installation," >&2
+  echo "       propre à votre déploiement — ce dépôt n'en prescrit aucun." >&2
+  echo "       Relancer avec GRADATUM_API_KEY_FILE=<chemin>." >&2
+  exit 1
+fi
 
 # Compteurs
 PASS=0

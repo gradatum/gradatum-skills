@@ -1,53 +1,67 @@
 # ARCHITECTURE — gradatum-skills
 
-> Initialisé 2026-05-10. Sera enrichi par `/dependency-architecture-tree` après livraison Phase 1.
+> Initialisé 2026-05-10. Révisé 2026-08-01 (migration MCP-native : plus aucun script ni
+> transport HTTP côté client).
 
 ## Vue d'ensemble
 
-Plugin Claude Code distribuable. Composition à 2 niveaux : skills L1 (logique décision) → skills L0 (transport HTTP atomique).
+Plugin Claude Code distribuable. Composition à 2 niveaux : skills L1 (logique de décision) →
+skills L0 (appel d'un outil MCP atomique).
+
+Le dépôt ne contient **que des documents**. Un skill L0 nomme un outil MCP du serveur `gradatum`
+dans son champ `allowed-tools` et décrit quand et comment l'appeler ; c'est le harnais qui exécute
+l'appel. Il n'y a ni script, ni binaire, ni client HTTP, ni gestion de credential dans ce dépôt.
 
 ## Arbre fonctionnel
 
 ```
-gradatum-skills/                                      [CORE]   plugin Claude Code
-├── .claude-plugin/plugin.json                        [CORE]   manifest plugin
+gradatum-skills/                                      [CORE]    plugin Claude Code
+├── .claude-plugin/plugin.json                        [CORE]    manifeste — autorité de la liste
+│                                                               de candidats au retrait (cf README)
 ├── skills/
-│   ├── gradatum-vault-search/                        [FEATURE] L0 atomique lecture vault
-│   │   ├── SKILL.md                                  [SUB]    frontmatter + corps + doctrine output
-│   │   └── scripts/search.sh                         [SUB]    Bash POSIX wrapper curl + jq
-│   └── gradatum-skill-reminder/                      [FEATURE] L1 métamémoire auto-déclenchée
-│       └── SKILL.md                                  [SUB]    pure logique décision (pas de script)
+│   ├── gradatum-vault-search/SKILL.md                [FEATURE] L0 — recherche vault
+│   ├── gradatum-vault-read/SKILL.md                  [FEATURE] L0 — lecture d'une note par chemin
+│   ├── gradatum-vault-write/SKILL.md                 [FEATURE] L0 — écriture (create / update RMW)
+│   ├── gradatum-vault-timeline/SKILL.md              [FEATURE] L0 — requête temporelle
+│   ├── gradatum-lessons-recall/SKILL.md              [FEATURE] L0 — recall des leçons par classe
+│   ├── gradatum-code-map/SKILL.md                    [FEATURE] L0 — carte de code dérivée
+│   ├── gradatum-skill-reminder/SKILL.md              [FEATURE] L1 — métamémoire (chercher)
+│   ├── gradatum-memorize/SKILL.md                    [FEATURE] L1 — capture/synthèse (écrire)
+│   ├── gradatum-knowledge-base-usage/SKILL.md        [FEATURE] L1 — routage entre bases
+│   ├── gradatum-feature-eval/SKILL.md                [FEATURE] L1 — auto-évaluation PROPOSE-ONLY
+│   └── gradatum-desktop/SKILL.md                     [FEATURE] variante Claude Desktop consolidée
 ├── tests/
-│   ├── bats/                                         [UTILITY] tests unitaires script
-│   └── smoke/                                        [UTILITY] tests E2E LIVE
-├── docs/superpowers/
-│   ├── specs/                                        [UTILITY] spec design Phase 1
-│   └── plans/                                        [UTILITY] plan implémentation Phase 1
-└── .forgejo/workflows/ci.yml                         [HOOK]   CI Forgejo Actions
+│   ├── bats/                                         [UTILITY] tests unitaires hors réseau
+│   ├── smoke/                                        [UTILITY] tests contre un serveur joignable
+│   ├── verify-install.sh                             [UTILITY] conformité de l'installation
+│   └── verify-mcp-tools.sh                           [UTILITY] atteignabilité des outils nommés
+├── docs/RFC/                                         [UTILITY] RFC de conception (historiques)
+└── (workflows CI du dépôt)                           [HOOK]    lint + tests unitaires + smoke
 ```
 
 ## Relations sémantiques
 
 | Source | Relation | Cible | Note |
 |---|---|---|---|
-| `/gradatum-skill-reminder` | utilise | `/gradatum-vault-search` | Composition L1 → L0 |
-| `/gradatum-vault-search` | dépend de | `gradatum-server :19090` | HTTP `POST /api/v1/vault_search` |
-| `/gradatum-vault-search` | utilise auth | `/etc/gradatum/claude-code.api-key` | API key → JWT 24h via `/auth/exchange` |
-| `tests/bats/` | teste | `scripts/search.sh` | Unit isolés (mock curl) |
-| `tests/smoke/` | déclenche | `gradatum-server :19090` | E2E LIVE, write canary + verify |
-| `.forgejo/workflows/ci.yml` | exécute | `tests/bats/` + `tests/smoke/` | Runner self-hosted |
+| `/gradatum-skill-reminder` | utilise | `/gradatum-vault-search`, `/gradatum-vault-timeline` | Composition L1 → L0 |
+| `/gradatum-memorize` | utilise | `/gradatum-vault-write` | Composition L1 → L0, via search-before-write |
+| skills L0 | dépendent de | outils MCP du serveur `gradatum` | Nommés dans `allowed-tools` de chaque `SKILL.md` |
+| `tests/bats/` | teste | structure des `SKILL.md` + manifeste + procédure d'installation | Hors réseau |
+| `tests/verify-mcp-tools.sh` | confronte | outils nommés ↔ outils exposés | Deux surfaces distinctes : serveur et client |
+| `tests/smoke/` | déclenche | un serveur `gradatum` joignable | Aller-retour réel |
+| workflow CI | exécute | `tests/bats/` + `tests/smoke/` | Runner du dépôt |
 
 ## Services externes
 
 ### Consommés
 
-| Service | Port | URL | Variables env |
-|---|---|---|---|
-| `gradatum-server` | 19090 | `http://<gradatum-server>` | `GRADATUM_SERVER_URL`, `GRADATUM_API_KEY_FILE` |
+| Service | Accès | Configuration |
+|---|---|---|
+| Serveur `gradatum` | outils MCP `mcp__gradatum__*` | Serveur MCP déclaré côté harnais (transport, adresse et jeton portés par cette configuration, pas par ce dépôt) |
 
 ### Fournis
 
-Aucun (Chemin A — plugin sans runtime permanent).
+Aucun (plugin sans runtime permanent).
 
 ## Diagramme
 
@@ -58,26 +72,33 @@ Aucun (Chemin A — plugin sans runtime permanent).
                                    │ invoke
                                    ▼
                   ┌──────────────────────────────────────┐
-                  │  /gradatum-skill-reminder (L1)       │
-                  │  pure logique décision MEMORIZE/SKIP │
+                  │  skill L1 (ex. skill-reminder)       │
+                  │  pure logique CHERCHE / SKIP         │
                   └──────────┬───────────────────────────┘
                              │ compose
                              ▼
                   ┌──────────────────────────────────────┐
-                  │  /gradatum-vault-search (L0)         │
-                  │  Bash + curl + jq                    │
+                  │  skill L0 (ex. vault-search)         │
+                  │  nomme un outil MCP, n'exécute rien  │
                   └──────────┬───────────────────────────┘
-                             │ HTTP POST
+                             │ appel d'outil, par le harnais
                              ▼
                   ┌──────────────────────────────────────┐
-                  │  gradatum-server :19090              │
-                  │  /api/v1/vault_search                │
+                  │  serveur MCP `gradatum`              │
+                  │  mcp__gradatum__vault_search         │
                   └──────────────────────────────────────┘
 ```
 
 ## Notes architecture
 
-- **Stateless** : aucun cache local. Chaque invocation = 1 appel HTTP frais.
-- **Bash POSIX uniquement** : pas de Node, pas de Python, pas de Rust côté client. Maximum portabilité multi-harness.
-- **Pas de hook** `UserPromptSubmit` ni autre mécanisme spécifique Claude Code natif → portable goose, gemini-cli, open-code (Phase 4).
-- **Sécurité** : API key sur disque (`chmod 600`), JWT 24h en mémoire, jamais persisté.
+- **Stateless** : aucun cache local. Chaque invocation = un appel d'outil frais.
+- **Aucun runtime côté client** : ni Bash, ni Node, ni Python, ni Rust. Un skill est un document.
+  La portabilité multi-harnais ne dépend plus d'un shell mais de la présence d'un client MCP.
+- **Pas de hook** `UserPromptSubmit` ni autre mécanisme propre à un harnais → le déclenchement
+  repose sur la `description` du `SKILL.md` et sur une règle de configuration harnais.
+- **Sécurité** : aucun secret n'est lu, nommé ni transporté par ce dépôt. Le credential du serveur
+  `gradatum` appartient à la configuration du serveur MCP du consommateur. La surface d'attaque
+  d'un skill se réduit à ce que son champ `allowed-tools` autorise.
+- **Asynchronie de l'écriture** : `vault_write` accuse une mise en file ; l'état réel se lit via
+  `job_status` jusqu'à ce que le champ `terminal` soit vrai — jamais par une liste d'états gravée
+  côté client.

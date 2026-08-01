@@ -31,7 +31,7 @@ license: Apache-2.0
 
 ## 1. Contexte Gradatum
 
-Gradatum (alpha.5) est le memory backbone Rust open-source qui sert de support à vault-mem v2 (multi-tenant) et aux notes des agents. Le composant `gradatum-curator` (`gradatum:RFC-0001` existant) admet, classifie ou rejette les notes entrantes selon une politique versionnée.
+Gradatum (alpha.5) est le memory backbone Rust open-source qui sert de support aux vaults multi-tenant et aux notes des agents. Le composant `gradatum-curator` (`gradatum:RFC-0001` existant) admet, classifie ou rejette les notes entrantes selon une politique versionnée.
 
 État actuel du curator (référence : code crate `gradatum-curator/src/pipeline.rs`) :
 
@@ -59,7 +59,7 @@ Trois principes :
 2. **Promotion automatique** : déclenchée par la mécanique d'usage, pas par humain.
 3. **Démotion possible** : une note `confirmed` qui devient obsolète ou rejetée par usage redescend.
 
-> **Inspiration directe** : `libskills:RFC-0001` §4.2 (Quarantaine appliquée aux skills agent) + observation que vault-mem v2 et les patterns d'usage Gradatum ont la même structure logique.
+> **Inspiration directe** : `libskills:RFC-0001` §4.2 (Quarantaine appliquée aux skills agent) + observation que les vaults multi-tenant et les patterns d'usage Gradatum ont la même structure logique.
 
 ---
 
@@ -506,7 +506,7 @@ ALTER TABLE notes DROP COLUMN tier_changed_at;
 - **gradatum:RFC-0001** — Versioning Gradatum.
 - **gradatum:RFC-0002** — Cross-platform (compatibilité ALTER TABLE SQLite).
 - **gradatum:RFC-0003** — HTTP API (extension endpoints search).
-- **vault-mem v2** : tier hot/warm/cold (mécanisme similaire mais sur dimension temporelle).
+- **Tiering hot/warm/cold d'un vault** : mécanisme similaire, mais sur la dimension temporelle.
 
 ---
 

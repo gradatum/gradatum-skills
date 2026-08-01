@@ -2,31 +2,35 @@
 
 > Plugin Claude Code (Apache-2.0) — skills atomiques + métamémoire pour `gradatum`.
 
-Composition L1 (logique de décision) → L0 (atomique HTTP). Stateless. Bash POSIX.
+Composition L1 (logique de décision) → L0 (appel d'outil MCP atomique). Stateless.
 
-## Phase 1 — Skills disponibles (v0.1.0)
+Les skills n'embarquent **aucun script, aucun binaire, aucune dépendance locale** : chaque skill L0
+nomme un outil MCP du serveur `gradatum` et le harnais l'appelle. Le transport, l'authentification
+et le format de réponse appartiennent au serveur MCP, pas à ce dépôt.
 
-Skills disponibles :
+## Skills disponibles
 
 | Skill | Niveau | Rôle | Statut |
 |---|---|---|---|
-| `/gradatum-vault-search` | L0 | Wrapper HTTP atomique sur `POST /api/v1/vault_search` du serveur gradatum (`:19090`). Script Bash POSIX `scripts/search.sh`. | ✅ LIVRÉ |
-| `/gradatum-vault-read` | L0 | Lit le contenu COMPLET d'une note par chemin — outil MCP natif `mcp__gradatum__vault_read`. Complément de vault-search (qui ne renvoie que des ULID). | ✅ LIVRÉ |
-| `/gradatum-lessons-recall` | L0 | Recall des leçons apprises (F-60) par classe — outil MCP natif `mcp__gradatum__vault_lessons_recall`. Recall JIT avant un gate à risque. | ✅ LIVRÉ |
-| `/gradatum-vault-timeline` | L0 | Requête temporelle du vault — outil MCP natif `mcp__gradatum__vault_timeline` (fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
-| `/gradatum-vault-write` | L0 | Écriture vault (`POST /api/v1/vault_write`) — create + update in-place RMW (concurrence-safe sha256). Corps sur stdin, poll async, garde anti-doublon. | ✅ LIVRÉ |
-| `/gradatum-code-map` | L0 | Carte de code dérivée (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter). Modes query/symbol/path + corps. Comprendre/naviguer du code sans lire les fichiers entiers. | ✅ LIVRÉ |
+| `/gradatum-vault-search` | L0 | Recherche dans le vault — outil MCP `mcp__gradatum__vault_search`. Ne renvoie que des chemins + scores, pas le corps des notes. | ✅ LIVRÉ |
+| `/gradatum-vault-read` | L0 | Lit le contenu COMPLET d'une note par chemin — outil MCP `mcp__gradatum__vault_read`. Complément de vault-search. | ✅ LIVRÉ |
+| `/gradatum-lessons-recall` | L0 | Recall des leçons apprises par classe — outil MCP `mcp__gradatum__vault_lessons_recall`. Recall juste-à-temps avant un gate à risque. | ✅ LIVRÉ |
+| `/gradatum-vault-timeline` | L0 | Requête temporelle du vault — outil MCP `mcp__gradatum__vault_timeline` (fenêtre epoch ms, `Static`/`Event`). | ✅ LIVRÉ |
+| `/gradatum-vault-write` | L0 | Écriture vault — outils MCP `mcp__gradatum__vault_write` + `mcp__gradatum__job_status`. Création, ou mise à jour in-place sous verrou optimiste (identifiant de note + hash attendu). Écriture asynchrone : le résultat se lit en pollant l'état du job. | ✅ LIVRÉ |
+| `/gradatum-code-map` | L0 | Interroge la carte de code dérivée d'un projet (vault `code-<projet>`, extraction tree-sitter) — outil MCP `mcp__gradatum__code_scope`. Comprendre/naviguer du code sans lire les fichiers entiers. La mise à jour de l'index est une opération d'administration côté serveur, pas une opération MCP. | ✅ LIVRÉ |
 | `/gradatum-memorize` | L1 | Décide QUOI persister durablement + route vers la bonne section, délègue à `/gradatum-vault-write`. Symétrique de skill-reminder (écrire vs chercher). Pure logique. | ✅ LIVRÉ |
 | `/gradatum-skill-reminder` | L1 | Métamémoire auto-déclenchée — détermine si le contexte courant nécessite une recherche vault, délègue à `/gradatum-vault-search`. Pure logique de décision. | ✅ LIVRÉ |
-| `gradatum-desktop` | MCP-only | Variante consolidée pour **Claude Desktop** via connecteur MCP (`/mcp` Streamable HTTP + Bearer) — aucun script local. Search-before-write, triage des sections, gatekeeper, prudence outils destructifs. Les autres skills ciblent Claude Code (Bash local) et ne fonctionnent pas sur Desktop. | ✅ LIVRÉ |
+| `/gradatum-knowledge-base-usage` | L1 | Guide de routage entre le vault (décisions, council, architecture, debug) et l'index de code dérivé. Porte la règle search-before-write, le triage signal → section et les conventions d'écriture. | ✅ LIVRÉ |
+| `/gradatum-feature-eval` | L1 | Auto-évaluation périodique des features réellement exploitées, puis propositions priorisées. **PROPOSE-ONLY** : ne modifie jamais le produit, rend un rapport. | ✅ LIVRÉ |
+| `gradatum-desktop` | MCP-only | Variante consolidée pour **Claude Desktop** via connecteur MCP (Streamable HTTP + Bearer). Search-before-write, triage des sections, gatekeeper, prudence sur les outils destructifs. Les autres skills déclarent `compatibility: claude-code` et ciblent l'invocation par slash-command du harnais. | ✅ LIVRÉ |
 
-### /gradatum-vault-search (L0 — atomique HTTP)
+### /gradatum-vault-search (L0)
 
-Recherche dans le vault gradatum via `POST /api/v1/vault_search`.
+Recherche dans le vault gradatum.
 
-**Output** : `🧠 N notes : <ulid-26> [<score>], ...`
-
-**Auth** : API key file `/etc/gradatum/claude-code.api-key` → JWT EdDSA Ed25519 24h via `/auth/exchange`.
+**Output** : des chemins de notes (`<section>/<ulid>`) et leurs scores — **jamais le corps des
+notes**. L'étape suivante naturelle est `/gradatum-vault-read` sur un chemin retenu. Le format
+exact appartient à l'outil MCP ; il n'est plus mis en forme par ce dépôt.
 
 **Invoquer quand** : réflexion sur un sujet traité, anti-doublon avant écriture, recherche explicite.
 
@@ -38,52 +42,149 @@ Déclencheur métamémoire basé sur des règles de décision CHERCHE/SKIP.
 
 **SKIP** si : validation seule ("oui", "go"), commande directe, slash-command, trivial.
 
-**Sections canoniques** : `decisions`, `council`, `commits`, `debug`, `lessons-learned`, `architecture`, `agent-issues`, `roadmap`, `retrospectives`, `reasoning`, `project-bootstrap`.
+**Sections canoniques** : la liste et la sémantique des sections ont pour **autorité unique le skill
+`/gradatum-vault-write`**, lui-même reflet des sections que le serveur expose. Elles ne sont ni
+recopiées ni comptées ici : une liste dupliquée dérive en silence. Ce README en portait une copie
+de onze noms, dont trois ne désignaient plus rien et quatre sections réelles manquaient — sans que
+rien ne le signale.
 
 ## Roadmap
 
-- **Phase 2** — `/gradatum-vault-write` (L0) + `/gradatum-skill-memorize` (L1) + débranchement de 12 skills existants
-- **Phase 3** — Atomiques L0 supplémentaires (downgrade, classify, graph, trace, context, read, list, status, authors, tags)
-- **Phase 4** — Compatibilité multi-agent (goose, gemini-cli, open-code)
-- **Phase 5** — Distribution `/plugin install gradatum/skills`
+Livré : tous les skills du tableau ci-dessus, en appel MCP natif. La liste installable fait
+foi dans `.claude-plugin/plugin.json` — elle n'est comptée nulle part.
 
-Détails : `docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md`.
+- **Atomiques L0 supplémentaires** — couvrir d'un skill les outils que le serveur expose et
+  qu'aucun skill ne nomme encore. L'écart se constate en confrontant la liste que le serveur
+  renvoie (`tools/list`) aux outils nommés dans les `SKILL.md` ; il n'est gravé nulle part ici.
+- **Compatibilité multi-agent** — harnais autres que Claude Code (goose, gemini-cli, open-code).
+  La contrainte n'est plus le shell mais la disponibilité d'un client MCP et d'un mécanisme de
+  skills côté harnais.
+- **Distribution** — installation par gestionnaire de plugins plutôt que par la synchronisation
+  manuelle décrite ci-dessous.
 
 ## Pré-requis
 
-- Serveur `gradatum-server` LIVE sur `http://<gradatum-server>` (self-hosted)
-- Auth API key file `/etc/gradatum/claude-code.api-key` (Path 2 → JWT 24h)
-- `bash` 5+, `curl`, `jq`
+- Un serveur `gradatum` joignable, et **un serveur MCP nommé `gradatum` configuré dans le harnais**,
+  exposant les outils que les skills nomment dans leur champ `allowed-tools`.
+- Pour **exécuter** les skills : aucune dépendance locale — ni `curl`, ni `jq`, ni runtime, ni
+  script. Un skill est un document ; c'est le harnais qui appelle l'outil MCP.
+- Pour **installer** par la procédure ci-dessous : `git` et `tar` (outils POSIX usuels).
+- L'authentification (jeton, en-tête) est portée par la configuration du serveur MCP du harnais.
+  Aucun skill de ce dépôt ne lit de secret ni ne nomme un chemin de fichier de credential.
 
-## Installation (locale, dev)
+Le script `tests/smoke/mcp-tools-live.sh` (voir « Vérifier que l'installation est opérationnelle »)
+interroge un serveur joignable et vérifie que les outils nommés par les skills y existent. Il ne
+prouve pas qu'ils sont appelables depuis votre client — cette seconde surface se fournit séparément.
+
+## Installation (synchronisation depuis une référence commitée)
 
 **Copies figées depuis un commit, jamais un symlink vers ce dépôt.** `git archive` lit l'objet
 commit, pas le répertoire de travail — la commande ci-dessous installe donc toujours l'état
-commité, même si le worktree a des modifications en cours :
+commité, même si le worktree a des modifications en cours.
 
+C'est une **synchronisation**, pas une simple copie : elle installe les skills déclarés au
+manifeste de la référence choisie **et retire** ceux qu'une installation précédente avait posés
+et que le produit ne contient plus. Elle est idempotente — la relancer sans changement de
+référence ne modifie rien.
+
+> **Le champ `skills` de `.claude-plugin/plugin.json` n'est pas du poids mort.** Il est redondant
+> pour le *chargement* — un harnais qui scanne `skills/` trouve les mêmes répertoires sans lui.
+> Mais il est la **seule autorité sur la liste de candidats au retrait** (étape 3 ci-dessous) : la
+> synchronisation ne connaît d'un skill que ce que deux manifestes en disent. Le supprimer parce
+> qu'il « fait doublon » ne casse rien de visible à l'installation, et casse **silencieusement**
+> le retrait des skills sortis du produit — qui resteront alors installés indéfiniment.
+
+Variables, toutes optionnelles :
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `GRADATUM_SKILLS_REPO` | `$PWD` | clone de ce dépôt |
+| `CLAUDE_SKILLS_DIR` | `$HOME/.claude/skills` | répertoire des skills du harness |
+| `GRADATUM_SKILLS_REF` | `HEAD` | commit, tag ou branche à installer |
+
+<!-- SYNC-INSTALL:BEGIN — bloc extrait et exécuté tel quel par tests/bats/install-sync.bats ; ne pas le dupliquer ailleurs -->
 ```bash
-mkdir -p ~/.claude/skills
-REF="$(git -C ~/projects/gradatum-skills rev-parse HEAD)"
-git -C ~/projects/gradatum-skills archive "$REF" skills \
-  | tar -x --strip-components=1 -C ~/.claude/skills
-```
+set -eu
 
-Pour installer un commit ou un tag précis plutôt que le dernier : remplacer la ligne `REF=` par
-`REF=<commit-ou-tag>`.
+REPO="${GRADATUM_SKILLS_REPO:-$PWD}"
+DEST="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+REF="${GRADATUM_SKILLS_REF:-HEAD}"
+RECEIPT="$DEST/.gradatum-skills.installed"
+
+mkdir -p "$DEST"
+
+# 1. Manifeste de la référence à installer : seule autorité sur les noms de skills
+#    du produit. Rien d'autre ne nomme un skill dans cette procédure.
+WANTED=$(git -C "$REPO" show "$REF:.claude-plugin/plugin.json" \
+  | awk '/"skills"[[:space:]]*:/{f=1} f{print} f && /\]/{exit}' \
+  | grep -o '"\./skills/[^"/]*"' | tr -d '"' | sed 's|^\./skills/||' | sort -u)
+if [ -z "$WANTED" ]; then
+  echo "manifeste vide ou illisible à la référence $REF — abandon" >&2
+  exit 1
+fi
+
+# 2. Installation : copie figée depuis l'objet commit, jamais le répertoire de travail.
+set --
+for s in $WANTED; do set -- "$@" "skills/$s"; done
+git -C "$REPO" archive "$REF" "$@" | tar -x --strip-components=1 -C "$DEST"
+
+# 3. Retrait des skills sortis du produit. Candidats = reçu de l'installation
+#    précédente (lui-même une copie de manifeste) MOINS manifeste courant.
+#    Le répertoire d'installation n'est JAMAIS balayé : un skill qui n'appartient
+#    pas à ce produit n'est nommé par aucun manifeste, donc n'est jamais candidat.
+if [ -f "$RECEIPT" ]; then
+  OBSOLETE=$(sort -u "$RECEIPT" | grep -vxF "$WANTED" || true)
+  for s in $OBSOLETE; do
+    case "$s" in ''|.|..|*/*|.*) continue ;; esac
+    if [ -L "$DEST/$s" ] || [ ! -d "$DEST/$s" ]; then continue; fi
+    rm -rf -- "${DEST:?}/${s:?}"
+    echo "retiré : $s"
+  done
+fi
+
+# 4. Nouveau reçu — reflet exact du manifeste installé.
+printf '%s\n' "$WANTED" > "$RECEIPT"
+```
+<!-- SYNC-INSTALL:END -->
+
+### Ce que la synchronisation ne touche jamais
+
+Le seul geste destructif est l'étape 3, et ses candidats sortent exclusivement de **deux
+manifestes** : celui de l'installation précédente (le reçu `.gradatum-skills.installed`) et
+celui de la référence installée. Un skill qui n'appartient pas à ce produit — quel que soit son
+nom, y compris s'il commence par `gradatum-` — n'apparaît dans aucun des deux, donc dans aucune
+liste de candidats, et survit à toute synchronisation. À la première installation, sans reçu,
+rien n'est retiré.
+
+Propriété vérifiée par red-proof dans `tests/bats/install-sync.bats` : un skill étranger est
+posé dans un répertoire d'installation jetable, la synchronisation est lancée, sa survie est
+asserée.
 
 ### Pourquoi pas un symlink
 
 Un symlink transforme chaque écriture dans le dépôt en activation immédiate côté runtime : il
 n'y a plus de délai entre modifier et exécuter, donc plus de fenêtre pour un commit, une revue
-ou un verdict de council — les gates du projet supposent tous ce délai, le symlink le supprime
-en silence. Décision actée : `decisions/01KYX31HZVW04AQC6ZCJ9T912W`.
+ou un verdict de revue — les gates du projet supposent tous ce délai, le symlink le supprime
+en silence.
 
-### Contrepartie : dérive possible
+### Vérifier que l'installation est opérationnelle
 
-La copie peut diverger du dépôt dès qu'un commit ultérieur modifie un skill installé — rien ne
-la resynchronise automatiquement, il n'existe pas encore d'outil dédié (dette assumée). Après
-tout commit touchant un skill déjà installé, relancer manuellement la commande d'archive
-ci-dessus pour le remettre à jour.
+Deux vérifications indépendantes, exécutables sans droits particuliers :
+
+```bash
+# 1. Conformité — chaque skill du manifeste est installé à l'identique de la
+#    référence commitée (diff récursif, sortie 1 au premier écart).
+bash tests/verify-install.sh
+
+# 2. Atteignabilité — chaque outil MCP nommé par un SKILL.md existe dans la liste
+#    exposée par le serveur. La liste attendue est lue sur l'entrée standard ou
+#    sur un fichier ; elle n'est jamais gravée dans le vérificateur.
+bash tests/smoke/mcp-tools-live.sh        # interroge le serveur, puis vérifie
+bash tests/verify-mcp-tools.sh --tools ma-liste.txt   # liste déjà obtenue
+```
+
+« Installé » et « opérationnel » sont deux propriétés distinctes : la première ne dit rien d'un
+skill qui nomme un outil que le serveur n'expose pas.
 
 ## Wire-up (CLAUDE.md anchor)
 
@@ -104,20 +205,27 @@ Note : "go" suivi d'une description de tâche = amorce substantielle → invoque
 
 Sans ce wire-up, l'invocation est laissée à la discrétion de l'agent (≈ sporadique). Avec, l'agent invoque le skill systématiquement et le skill lui-même décide CHERCHE vs SKIP en interne.
 
-**Référence design** : `docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md` section 6 « Mécanisme de déclenchement systématique » (3 leviers L-1 description SKILL.md + L-2 règle harness + L-3 mention boot).
+Trois leviers concourent au déclenchement systématique : la `description` du `SKILL.md` (que le
+harnais lit pour décider d'invoquer), la règle harnais ci-dessus, et une mention au démarrage de
+session. Le premier seul ne suffit pas.
 
 ## Architecture
 
-Voir `ARCHITECTURE.md` (généré par `/dependency-architecture-tree`).
+Voir `ARCHITECTURE.md`.
 
 ## Tests
 
 ```bash
-# Unit Bats (script atomique L0)
-cd tests/bats && bats test_search_helpers.bats
+# Suite unitaire complète (hors réseau, exécutable par un consommateur externe)
+cd tests/bats && bats ./*.bats
 
-# Smoke E2E (write canary + invoke search + verify)
-bash tests/smoke/smoke-e2e.sh
+# Vérificateurs d'installation (voir « Vérifier que l'installation est opérationnelle »)
+bash tests/verify-install.sh
+bash tests/verify-mcp-tools.sh --tools <fichier>
+
+# Smoke E2E contre un serveur gradatum joignable
+bash tests/smoke/end-to-end.sh
+bash tests/smoke/mcp-tools-live.sh
 ```
 
 ## Licence

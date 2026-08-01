@@ -43,7 +43,7 @@ The proposal is included now to:
 
 The Markdown source-of-truth model gives Gradatum its readability and resilience. It does not, however, give it a structured representation of the knowledge contained in notes. As the KB grows past ~500 notes, three problems become measurable:
 
-- **Same fact restated.** « Le swap zvol ZFS est 32 GB sur nvme_pool » appears in 4 distinct notes, with minor wording variations. None is canonical.
+- **Same fact restated.** « Le volume de swap fait 32 GB » appears in 4 distinct notes, with minor wording variations. None is canonical.
 - **Concepts diluted.** A concept like « ZFS swap configuration » exists implicitly across notes but cannot be queried as such.
 - **Relations invisible.** Notes mention « ROCm » and « Vulkan » in the same breath dozens of times, but no edge in the search graph reflects that.
 
@@ -275,7 +275,7 @@ Rollback: `DROP TABLE consolidate_*` is safe — no source data is touched.
 - [ ] Should consolidation be tenant-scoped or cross-tenant? Default proposal: tenant-scoped (D10). But shared infra concepts (`tokio`, `axum`) might benefit from cross-tenant. Privacy implications.
 - [ ] Concept stable identity: when a concept's fact set evolves significantly, should the ULID change? Argument for stable: traceability. Argument for change: prevents staleness of relations referring to it.
 - [ ] Granularity of relations: only `co-occurs` v1, or also `depends-on`, `instance-of`, `contradicts`? More relation types = richer graph, but more LLM judging.
-- [ ] Interaction with `gradatum migrate-from-v0` (Phase 2.1): should consolidation run on pre-migration vault-mem notes, or wait for full re-classification? Current draft says wait.
+- [ ] Interaction with `gradatum migrate-from-v0` (Phase 2.1): should consolidation run on notes imported from the predecessor memory system, or wait for full re-classification? Current draft says wait.
 - [ ] Should the consolidator generate Markdown digests by default, or only on operator request? Generating creates clutter; not generating reduces visibility.
 
 ---

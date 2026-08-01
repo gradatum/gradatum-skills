@@ -6,33 +6,127 @@ on:
   pull_request:
     branches: [main]
 
+# Doctrine commune aux trois jobs — transposition de `skip_bruyant`
+# (tests/bats/helpers.bash) au niveau CI : un contrôle qui n'a pas pu vérifier
+# ne dit JAMAIS « OK ». Il rend l'un des trois verdicts suivants, et rien
+# d'autre :
+#
+#   ROUGE           un défaut réel, ou un contrôle qui aurait été vide
+#                   (absence de fichiers à vérifier = défaut, pas un laissez-passer)
+#   NON CONCLUANT   l'environnement ne fournit pas de quoi vérifier (binaire
+#                   absent, identité absente) -> bannière + annotation, et le
+#                   log ne contient nulle part le mot OK
+#   VERT            la propriété a réellement été vérifiée
+#
+# GRADATUM_SKILLS_STRICT=1 convertit tout NON CONCLUANT en échec — même
+# interrupteur que celui des suites bats, à poser sur un runner censé rendre un
+# verdict complet.
+#
+# Note de périmètre : aucun secret n'est manipulé par ces jobs, et aucune
+# variable d'identité n'y est injectée — le label `gradatum-ci` n'est pas un
+# exécuteur porteur de secrets. Le job smoke CONSTATE la présence d'une identité
+# dans son environnement, il n'en fabrique pas.
+
 jobs:
   lint:
     runs-on: [self-hosted, linux, x64, gradatum-ci]
     steps:
       - uses: actions/checkout@v4
-      - name: Shellcheck (placeholder — vrais scripts en Phase 1 T22)
+      - name: Shellcheck des scripts du dépôt
         run: |
-          if [ -d skills ]; then
-            find skills -name "*.sh" -type f | while read -r f; do
-              echo "shellcheck $f"
-              shellcheck "$f" || exit 1
-            done
+          set -uo pipefail
+
+          inconcluant() {
+            printf '\n  !! PROPRIÉTÉ NON VÉRIFIÉE : %s\n     raison : %s\n' "$1" "$2"
+            printf '     ce job ne prouve RIEN dans cet environnement\n'
+            printf '     (GRADATUM_SKILLS_STRICT=1 en fait un échec)\n\n'
+            echo "::warning title=NON CONCLUANT::$1 — $2"
+            if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+              printf '### NON CONCLUANT\n\n- propriété non vérifiée : %s\n- raison : %s\n' "$1" "$2" \
+                >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ "${GRADATUM_SKILLS_STRICT:-0}" = "1" ]; then
+              echo "STRICT — propriété non vérifiée : $1 ($2)" >&2
+              exit 1
+            fi
+            echo "NON CONCLUANT — $1 ($2)"
+            exit 0
+          }
+
+          # Les scripts du produit vivent sous tests/ : `skills/` n'en contient
+          # plus aucun depuis le passage MCP-natif. Un lint restreint à `skills/`
+          # ne scannait donc 0 fichier et concluait « OK ».
+          FICHIERS=$(find skills tests -type f -name '*.sh' 2>/dev/null | sort) || FICHIERS=""
+
+          # Garde anti-vacuité : 0 fichier scanné = contrôle sans objet, donc
+          # ROUGE. Aucun cardinal n'est gravé — seule la non-vacuité l'est.
+          if [ -z "$FICHIERS" ]; then
+            echo "::error title=Lint vide::aucun script .sh trouvé sous skills/ ni tests/"
+            echo "FAIL — aucun script à linter : ce contrôle n'aurait rien vérifié" >&2
+            exit 1
           fi
-          echo "OK — pas de scripts à lint pour l'instant"
+
+          echo "Scripts à linter : $(printf '%s\n' "$FICHIERS" | wc -l)"
+          printf '%s\n' "$FICHIERS" | sed 's/^/  - /'
+          echo ""
+
+          command -v shellcheck >/dev/null 2>&1 \
+            || inconcluant "les scripts shell du dépôt passent shellcheck" "binaire shellcheck absent du runner"
+
+          # Boucle SANS pipe : un `exit` dans un `while` alimenté par un tube
+          # s'exécute dans un sous-shell et ne fait pas échouer le job. C'était
+          # le cas ici — un shellcheck rouge laissait le job vert.
+          ECHECS=0
+          while IFS= read -r f; do
+            echo "--- shellcheck $f"
+            shellcheck "$f" || ECHECS=$((ECHECS + 1))
+          done <<< "$FICHIERS"
+
+          echo ""
+          if [ "$ECHECS" -gt 0 ]; then
+            echo "FAIL — $ECHECS script(s) en défaut" >&2
+            exit 1
+          fi
+          echo "PASS — tous les scripts listés passent shellcheck"
 
   bats:
     runs-on: [self-hosted, linux, x64, gradatum-ci]
     needs: lint
     steps:
       - uses: actions/checkout@v4
-      - name: Bats unit tests (placeholder)
+      - name: Suites bats
         run: |
-          if [ -d tests/bats ] && ls tests/bats/*.bats >/dev/null 2>&1; then
-            cd tests/bats && bats ./*.bats
-          else
-            echo "OK — pas de tests Bats pour l'instant"
+          set -uo pipefail
+
+          inconcluant() {
+            printf '\n  !! PROPRIÉTÉ NON VÉRIFIÉE : %s\n     raison : %s\n' "$1" "$2"
+            printf '     ce job ne prouve RIEN dans cet environnement\n'
+            printf '     (GRADATUM_SKILLS_STRICT=1 en fait un échec)\n\n'
+            echo "::warning title=NON CONCLUANT::$1 — $2"
+            if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+              printf '### NON CONCLUANT\n\n- propriété non vérifiée : %s\n- raison : %s\n' "$1" "$2" \
+                >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ "${GRADATUM_SKILLS_STRICT:-0}" = "1" ]; then
+              echo "STRICT — propriété non vérifiée : $1 ($2)" >&2
+              exit 1
+            fi
+            echo "NON CONCLUANT — $1 ($2)"
+            exit 0
+          }
+
+          # Les suites sont des fichiers SUIVIS : leur absence est un défaut du
+          # dépôt, pas une dispense. ROUGE, jamais « OK ».
+          if ! ls tests/bats/*.bats >/dev/null 2>&1; then
+            echo "::error title=Suites absentes::aucun fichier tests/bats/*.bats"
+            echo "FAIL — aucune suite bats dans le dépôt : ce contrôle serait vide" >&2
+            exit 1
           fi
+
+          command -v bats >/dev/null 2>&1 \
+            || inconcluant "les suites bats du dépôt passent" "binaire bats absent du runner"
+
+          cd tests/bats && bats ./*.bats
 
   smoke:
     runs-on: [self-hosted, linux, x64, gradatum-ci]
@@ -40,10 +134,47 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      - name: Smoke E2E (placeholder)
+      - name: Smoke E2E contre un serveur gradatum
         run: |
-          if [ -x tests/smoke/end-to-end.sh ]; then
-            bash tests/smoke/end-to-end.sh
-          else
-            echo "OK — pas de smoke pour l'instant"
+          set -uo pipefail
+
+          inconcluant() {
+            printf '\n  !! PROPRIÉTÉ NON VÉRIFIÉE : %s\n     raison : %s\n' "$1" "$2"
+            printf '     ce job ne prouve RIEN dans cet environnement\n'
+            printf '     (GRADATUM_SKILLS_STRICT=1 en fait un échec)\n\n'
+            echo "::warning title=NON CONCLUANT::$1 — $2"
+            if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+              printf '### NON CONCLUANT\n\n- propriété non vérifiée : %s\n- raison : %s\n' "$1" "$2" \
+                >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ "${GRADATUM_SKILLS_STRICT:-0}" = "1" ]; then
+              echo "STRICT — propriété non vérifiée : $1 ($2)" >&2
+              exit 1
+            fi
+            echo "NON CONCLUANT — $1 ($2)"
+            exit 0
+          }
+
+          SMOKE=tests/smoke/end-to-end.sh
+          PROP="le contrat HTTP consommé par les skills répond correctement (smoke E2E)"
+
+          # Fichier suivi : son absence est un défaut du dépôt, pas une dispense.
+          if [ ! -f "$SMOKE" ]; then
+            echo "::error title=Smoke absent::$SMOKE introuvable"
+            echo "FAIL — $SMOKE est un fichier suivi : son absence est un défaut" >&2
+            exit 1
           fi
+
+          # L'emplacement du fichier de clé est une valeur d'INSTALLATION : ce
+          # dépôt n'en prescrit aucune et ce job n'en injecte aucune (le label
+          # `gradatum-ci` n'est pas un exécuteur porteur de secrets). On CONSTATE
+          # seulement ce que l'environnement du runner fournit.
+          if [ -z "${GRADATUM_API_KEY_FILE:-}" ]; then
+            inconcluant "$PROP" \
+              "aucune identité dans l'environnement du runner (GRADATUM_API_KEY_FILE non définie)"
+          fi
+
+          echo "Identité fournie par l'environnement — le smoke est exécuté pour de vrai."
+          echo "Son échec est un échec."
+          echo ""
+          bash "$SMOKE"

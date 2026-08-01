@@ -2,9 +2,42 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 
-## [Unreleased — interne]
+## [Unreleased]
 
-> Développé en interne, pas encore publié (tag public synchronisé avec la release gradatum v0.5.2).
+> Pas encore publié. Le tag public est synchronisé avec une release du serveur `gradatum`.
+
+### Changed — migration MCP-native complète (2026-08-01)
+
+- **Les six skills L0 appellent désormais un outil MCP.** Plus aucun `curl`, plus aucun script
+  shell, plus aucun parseur JSON dans `skills/` — le répertoire `scripts/` est supprimé du produit.
+  Cela **supersède** la note « lot B » ci-dessous, qui laissait `gradatum-vault-search` et
+  `gradatum-vault-write` en wrappers : ce n'est plus le cas.
+- Conséquence pour un consommateur : les prérequis `bash`/`curl`/`jq` disparaissent, ainsi que
+  toute configuration de credential côté skill. Le transport, l'adresse du serveur et le jeton
+  appartiennent à la configuration du serveur MCP du harnais.
+- `gradatum-code-map` : la mise à jour de l'index de code est explicitement une opération
+  d'administration côté serveur, **pas** une opération MCP ; le skill ne couvre que l'interrogation.
+
+### Fixed — promesse de sécurité retirée de la documentation publique
+
+- La formulation « concurrence-safe » associée à `gradatum-vault-write` est **retirée**. Le skill
+  décrit désormais le **mécanisme** (mise à jour in-place sous verrou optimiste : identifiant de
+  note + hash attendu, conflit → relecture obligatoire avant nouvel essai) et non une garantie.
+  La tenue effective du verrou est une propriété du **serveur** exécuté par le consommateur, pas
+  du skill : elle se vérifie, elle ne se promet pas depuis ce dépôt.
+- Le README décrivait encore l'architecture à scripts (`scripts/search.sh`, corps « sur stdin »,
+  endpoints HTTP, chemin de fichier de credential) et une liste de sections canoniques divergente.
+  La liste des sections n'est plus recopiée : son autorité unique est le skill
+  `/gradatum-vault-write`. Aucun cardinal n'est gravé.
+
+### Added — couche L1 (guidage)
+
+- `skills/gradatum-knowledge-base-usage/` — L1 pure-logique : routage entre le vault et l'index de
+  code dérivé, règle search-before-write, triage signal → section, formule d'acceptation du
+  curateur.
+- `skills/gradatum-feature-eval/` — L1 **PROPOSE-ONLY** : auto-évaluation périodique des features
+  réellement exploitées (utilisée / sous-utilisée / sans télémétrie / en friction / cassée) puis
+  propositions priorisées. Ne modifie jamais le produit.
 
 ### Added — couche L0 lecture (set indispensable)
 - `skills/gradatum-vault-read/` — L0 atomique : lit le contenu COMPLET d'une note par chemin —
@@ -16,41 +49,38 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 - `skills/gradatum-vault-timeline/` — L0 atomique : requête temporelle du vault —
   outil MCP natif `mcp__gradatum__vault_timeline` (fenêtre epoch ms, filtre `Static`/`Event`).
 
-### Changed — migration MCP-native (council Art.19 Round 2, lot B révisé)
+### Changed — migration MCP-native, premier lot
 - `skills/gradatum-vault-read/`, `skills/gradatum-lessons-recall/`, `skills/gradatum-vault-timeline/`
   — appel direct de l'outil MCP au lieu du wrapper shell (les 3 scripts d'origine, qui compactaient
-  la réponse via `jq`, sont retirés). `gradatum-vault-search` et `gradatum-vault-write` restent des
-  wrappers (hors périmètre de ce lot). Coût mesuré : perte de compaction côté client (+83 %
-  `lessons-recall`, +53 % `vault-timeline` par appel) — voir note datée dans chaque SKILL.md.
+  la réponse via un parseur JSON, sont retirés). Coût mesuré à ce lot : perte de compaction côté
+  client (+83 % `lessons-recall`, +53 % `vault-timeline` par appel). *Périmètre de ce lot
+  uniquement : les skills restants ont migré depuis — voir l'entrée du 2026-08-01 ci-dessus.*
 
 ### Added — couche L1 capture
 - `skills/gradatum-memorize/` — L1 pure-logique : décide QUOI persister durablement (décision/leçon/
   analyse/post-mortem/résultat) + route vers la bonne section canonique, puis délègue à
   /gradatum-vault-write (via vault-search anti-doublon → vault-read sha → vault-write). Symétrique de
-  skill-reminder (chercher) côté écrire. Council Art.19 GO-CAVEATS. NB : memo-snapshot/incremental
-  (boucle checkpoint→synthèse) NON portés en public — infra homelab, hors primitif produit.
+  skill-reminder (chercher) côté écrire.
 
 ### Added — couche L0 code
 - `skills/gradatum-code-map/` — L0 atomique : interroge la carte de code dérivée d'un projet
-  (`POST /api/v1/code_scope`, vault `code-<projet>`, tree-sitter zéro-LLM). 3 modes `query`/`symbol`/
-  `path` + option corps exact (`body`). Budget tokens adaptatif (`GRADATUM_BUDGET_TOKENS`, bump auto
-  en mode body), flags truncation affichés, garde charset vault `^code-[a-z0-9-]+$`. Pattern 2 passes
-  (signatures → body sur retenus). Script `scripts/scope.sh`. Council Art.19 (Auditeur APPROVED).
-  Version PUBLIQUE (root-bridge homelab retiré, refresh délégué à `gradatum-admin code ingest/update`).
+  (vault `code-<projet>`, extraction tree-sitter, zéro LLM). Modes `query` / `symbol` / `path` +
+  option corps exact. Budget de tokens adaptatif, marqueurs de troncature affichés, garde de charset
+  sur le nom de vault (`^code-[a-z0-9-]+$`). Pattern à 2 passes (signatures, puis corps sur les
+  symboles retenus). La mise à jour de l'index est une opération d'administration côté serveur.
 
 ### Added — couche L0 écriture
-- `skills/gradatum-vault-write/` — L0 atomique : écriture vault (`POST /api/v1/vault_write`), modes
-  **create** (note neuve) et **update** in-place (RMW `note_id` + `expected_sha256`, concurrence-safe :
-  sha périmé → `Conflict`, note non écrasée). Corps markdown sur stdin (immunisé ARG_MAX via stdin
-  jq+curl). Poll async jusqu'à l'état terminal. Garde anti-doublon (chercher avant créer). Script
-  `scripts/write.sh`. Council Art.19 3/3 GO-CAVEATS (sécu write path : injection neutralisée argv+body,
-  garde sha client+serveur, secret via FD).
+- `skills/gradatum-vault-write/` — L0 atomique : écriture vault, modes **create** (note neuve) et
+  **update** in-place (RMW : identifiant de note + hash attendu ; un hash périmé fait échouer
+  l'écriture au lieu de l'appliquer, ce qui impose de relire la note fraîche avant de réessayer).
+  Écriture asynchrone : l'accusé de mise en file ne vaut pas succès, l'état se lit en pollant le job
+  jusqu'à ce que son champ `terminal` soit vrai. Garde anti-doublon (chercher avant créer).
 
 ### Security
-- Tous les nouveaux scripts : secret (clé API, JWT) passé à curl via en-tête sur descripteur de
-  fichier (`-H @<(...)`) — jamais en argv (pas d'exposition `/proc/<pid>/cmdline`). Fallback clé en
-  `sudo -n` (non-bloquant). Validation d'arguments (epoch ms entiers, `doc_kind` ∈ {Static,Event}).
-- Council Art.19 3/3 GO-CAVEATS ; smoke LIVE :19090 validé pour les 3.
+- Aucun secret n'est lu, nommé ni transporté par ce dépôt. L'authentification vers le serveur
+  `gradatum` est portée par la configuration du serveur MCP du harnais ; les skills ne connaissent
+  ni jeton, ni chemin de fichier de credential.
+- La surface d'appel de chaque skill est bornée par son champ `allowed-tools`.
 
 ## [0.1.0] — 2026-05-25
 
@@ -80,4 +110,4 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 - Spec design Phase 1 (`docs/superpowers/specs/2026-05-09-gradatum-skill-reminder-design.md`)
 - Plan d'implémentation Phase 1 (`docs/superpowers/plans/2026-05-09-gradatum-skill-reminder-plan.md`)
 - LICENSE Apache-2.0
-- CI Forgejo Actions placeholder (`.forgejo/workflows/ci.yml`)
+- Workflow CI du dépôt (placeholder)

@@ -49,7 +49,7 @@ pas après une surinterprétation du résultat :
 
 `items: []` = aucune leçon codifiée pour cette classe — pas une erreur.
 
-⚠️ **Coût mesuré le 2026-07-31** (council Art.19 Round 2, Bob) : depuis le retrait du script
+⚠️ **Coût mesuré le 2026-07-31** : depuis le retrait du script
 `recall.sh` (qui compactait la réponse via `jq`), l'appel direct de l'outil MCP coûte **+83 %
 par appel** (2660 octets bruts vs 1454 octets compactés) — cause : snippets non tronqués et
 `tags[]` exposés dans la réponse JSON brute. Remède attendu : une projection compacte côté

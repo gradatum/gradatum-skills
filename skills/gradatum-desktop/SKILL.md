@@ -13,9 +13,14 @@ compatibility: claude-desktop (connecteur MCP Streamable HTTP)
 
 # gradatum-desktop — Vault gradatum via MCP (Claude Desktop)
 
-> Variante **MCP-only** des skills `gradatum-*` de ce dépôt : les autres skills
-> ciblent Claude Code (scripts Bash locaux) ; celui-ci ne dépend que des outils
-> exposés par le serveur MCP gradatum.
+> Variante **Claude Desktop** des skills `gradatum-*` de ce dépôt. Tous, celui-ci
+> compris, passent exclusivement par les outils du serveur MCP gradatum : le dépôt
+> ne contient aucun script, et aucun skill ne déclare d'outil `Bash`. Ce qui
+> distingue celui-ci est le **harnais cible**, déclaré en frontmatter — les autres
+> portent `compatibility: claude-code`, celui-ci `claude-desktop`. Conséquence
+> concrète et unique raison de son existence : ce runtime n'a pas accès au système
+> de fichiers du dépôt, donc pas aux autres `SKILL.md` ; ce fichier doit se
+> suffire à lui-même là où les autres peuvent renvoyer à une autorité voisine.
 > claude.ai web : non supporté à ce jour — les custom connectors web exigent
 > OAuth ou une URL sans header, et gradatum est Bearer-only.
 
@@ -78,16 +83,16 @@ similaire existe : enrichir, pas dupliquer).
 | Hypothèse testée + résultat (positif OU négatif) | `experiments` |
 | Erreur récurrente d'un agent | `agent-issues` |
 | Pointeur vers un système externe | `reference` |
-| Unité de travail à cycle de vie, statut → `DONE`, rattachée à une version | `project-map` (**hint-only** — `section_hint` explicite requis, jamais par heuristique ; writer dédié canonique `/gov-todo`, indisponible en MCP-only) |
+| Unité de travail à cycle de vie, statut → `DONE`, rattachée à une version | `project-map` (**hint-only** — `section_hint` explicite requis, jamais par heuristique ; **writer dédié côté installation**, hors d'atteinte depuis ce runtime) |
 
 ⚠️ **`project-map` est une carte, pas une note** : insupprimable (`PROTECTED_DELETE`, sans
-bypass), hors synchronisation `/gov-todo`↔TODO.md. Depuis ce runtime **MCP-only, ne pas écrire
-directement dans `project-map`** — signaler à l'opérateur que la carte doit être créée via
-`/gov-todo` en Claude Code.
+bypass), et son cycle de vie est tenu par un writer dédié côté installation — écrire à côté de
+lui désynchronise la carte sans erreur. Depuis ce runtime **MCP-only, ne pas écrire directement
+dans `project-map`** : **escalader** à l'opérateur, pour que la carte soit créée par ce writer.
 
 > Reflet opérationnel de `Section::ALL` (code serveur, source publique) — liste normative
-> détaillée dans `/gradatum-vault-write` (Claude Code). Gel de gouvernance de cette taxonomie
-> acté en interne (réf. NOMENCLATURE §10a, homelab).
+> détaillée dans `/gradatum-vault-write`. La gouvernance de cette taxonomie relève de
+> l'installation, pas de ce fichier.
 
 Distinctions : `debug` = 1er incident, `lessons-learned` = consolidation ≥ 2× ;
 `decisions` = arbitrage ponctuel, `retrospectives` = bilan multi-tâches.

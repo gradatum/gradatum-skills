@@ -259,7 +259,7 @@ Phase 1 → Phase 2 migration:
 ## 6. Drawbacks
 
 - **Adds a Python sidecar in Phase 1.** This violates the "no external service" invariant in spirit. Mitigation: sidecar bundled in the install package, no operator action; runs as systemd service alongside the others. Still: an extra moving part to monitor.
-- **False positives interrupt operator flow.** A regex matching `192.0.2.1` in a note about networking is technically PII but contextually fine. Mitigation: per-tenant whitelist + bypass mechanism. Operators will need a tuning period.
+- **False positives interrupt operator flow.** A regex matching an IP address such as `198.51.100.1` in a note about networking is technically PII but contextually fine. Mitigation: per-tenant whitelist + bypass mechanism. Operators will need a tuning period.
 - **LLM latency on contextual cases.** Worst case ~1 s on an ambiguous note. Mitigation: contextual layer is opt-in; default config skips it for layer-2 high-confidence matches.
 - **Audit log growth.** Every write produces a privacy event (even pass). At 50 writes/day, ~18k events/year. Mitigation: log rotation + compaction policy.
 - **Operator surprise on rejection.** A `reject` policy stops the write; the agent needs to handle it. Without good error messages, this looks like a bug. Mitigation: detailed `PrivacyVerdict` returned to caller + `gradatum-cli privacy explain` command.

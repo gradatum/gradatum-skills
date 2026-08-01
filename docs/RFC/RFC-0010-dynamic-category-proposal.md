@@ -21,7 +21,7 @@ license: Apache-2.0
 
 # RFC-0010 — Dynamic category proposal & promotion
 
-> **TL;DR (Draft)** — Aucun RFC actuel ne couvre la création/promotion **dynamique** de catégories de classification (ex: nouvelle section vault-mem au-delà des 11 canoniques actuelles, ou nouveau tag de skill). RFC-0001 fait du multi-tag sur catégories fixes, RFC-0003 détecte des concepts émergents, RFC-0007 promote des notes individuelles. Trou identifié 2026-05-10. Cette RFC propose un mécanisme de proposition + promotion de nouvelles catégories quand le curator détecte des clusters récurrents qui débordent une catégorie hétérogène. **Orientation à clarifier opérateur avant `Discussion` :** catégories canoniques (NOMENCLATURE §10) vs tags libres vs sous-catégories per-projet.
+> **TL;DR (Draft)** — Aucun RFC actuel ne couvre la création/promotion **dynamique** de catégories de classification (ex: nouvelle section de vault au-delà des 11 canoniques actuelles, ou nouveau tag de skill). RFC-0001 fait du multi-tag sur catégories fixes, RFC-0003 détecte des concepts émergents, RFC-0007 promote des notes individuelles. Trou identifié 2026-05-10. Cette RFC propose un mécanisme de proposition + promotion de nouvelles catégories quand le curator détecte des clusters récurrents qui débordent une catégorie hétérogène. **Orientation à clarifier opérateur avant `Discussion` :** catégories canoniques (NOMENCLATURE §10) vs tags libres vs sous-catégories per-projet.
 
 ---
 
@@ -53,7 +53,7 @@ Trois interprétations possibles de "catégories dynamiques" — l'opérateur do
 ### Option A — Catégories canoniques NOMENCLATURE §10 dynamiques
 
 Étendre **les 11 sections canoniques** dynamiquement (12e section, 13e, ...).
-- **Pour** : alignement avec architecture vault-mem, sections = invariants fondamentaux
+- **Pour** : alignement avec l'architecture du vault, sections = invariants fondamentaux
 - **Contre** : NOMENCLATURE §10 est verrouillée council Art.19 (seuil max post 2026-05-09). Toute auto-extension viole le verrou. Solution = proposer mais validation humaine obligatoire (pas auto-promotion).
 - **Granularité** : grosse maille (chaque section impacte tout le système)
 
@@ -108,7 +108,7 @@ Chaque projet (`gradatum`, `gradatum-skills`, `monarch`, etc.) déclare ses prop
 3. Mécanisme validation : 100% council Art.19 NOMENCLATURE (option A) ou auto-promotion à seuil + signalement (options B/C) ?
 4. Rétroactivité : appliquer le mécanisme aux notes existantes ou seulement aux nouvelles ?
 5. Cohabitation gradatum (multi-tenant `tenant_id`) : catégories tenant-scoped ou globales ?
-6. Trace : note vault-mem `decisions/` à chaque promotion catégorie (cf §9-bis.f Trace vault-mem) ?
+6. Trace : note `decisions/` dans le vault à chaque promotion de catégorie (cf §9-bis.f Trace) ?
 
 ---
 

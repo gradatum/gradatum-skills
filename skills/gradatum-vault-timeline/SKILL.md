@@ -62,7 +62,7 @@ résultat**. `as_of_ms` se réduit à un **plafond d'ancre**, strictement équiv
 
 **Ne pas présenter un résultat comme un état as-of validé.**
 
-⚠️ **Coût mesuré le 2026-07-31** (council Art.19 Round 2, Bob) : depuis le retrait du script
+⚠️ **Coût mesuré le 2026-07-31** : depuis le retrait du script
 `timeline.sh` (qui compactait la réponse via `jq`), l'appel direct de l'outil MCP coûte **+53 %
 par appel** (1938 octets bruts vs 1265 octets compactés). Remède attendu : une projection
 compacte côté serveur (pas encore livrée) ; en l'état, ce surcoût est structurel, pas un bug de

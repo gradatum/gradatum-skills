@@ -11,7 +11,9 @@ description: >
   Après le vault-search, tire la surface proactive F-46 (vault_proactive_recall sans context,
   limit 3, non bloquant) et poste le feedback d'apprentissage dès la sélection des résultats
   (vault_proactive_recall_feedback, liste vide valide). Logique de décision + 2 appels MCP
-  bornés côté CHERCHE ; le chemin SKIP reste zéro vault call.
+  bornés côté CHERCHE ; le chemin SKIP reste zéro vault call. Sur doute de surface (question de
+  code plutôt que de mémoire) ou de section, renvoie vers /gradatum-knowledge-base-usage — ce
+  renvoi est le seul chemin d'accès à ce dernier, le signal étant consommé ici.
 type: gradatum
 compatibility: claude-code (>= 2.1.0)
 ---
@@ -33,7 +35,7 @@ côté CHERCHE ; le chemin SKIP reste zéro vault call ; le `recall_id` ne vit q
 - **Diagnostic** ("ça plante", "erreur", "comprends pas", "pourquoi ça fail", "debug")
 - **Décision / planification** ("on va", "je veux", "plan", "on commence", "étape", "roadmap")
 - **Amorce de tâche substantielle** (≥ 1 verbe métier + objet concret identifiable)
-- **Mots-clés vault-mem / gradatum** ("vault_search", "écrire note", "récupérer décision",
+- **Mots-clés mémoire / gradatum** ("vault_search", "écrire note", "récupérer décision",
   "architecture", "décisions", "council", "retrospective", "lessons-learned", "memo")
 
 ### SKIP — ne rien invoquer, traiter normalement si le prompt est :
@@ -41,9 +43,30 @@ côté CHERCHE ; le chemin SKIP reste zéro vault call ; le `recall_id` ne vit q
 - **Validation / négation seule** ("oui", "go", "valide", "non", "stop", "ok", "c'est ça",
   "continue", "parfait", "bien", "merci")
 - **Exécution commande directe** ("lance X", "exécute Y", "run Z", "fais X")
-- **Slash command** (/gradatum-vault-search, /memo, etc.)
+- **Slash command** — toute invocation directe d'un skill par son nom (/gradatum-vault-search, et
+  de même pour tout autre skill présent dans l'environnement)
 - **Salutation / social** ("bonjour", "merci", "à plus", "bonne journée")
 - **Trivial** (< 10 caractères utiles dans le prompt)
+
+## Renvoi obligatoire — doute de surface ou de section
+
+Ce skill est invoqué **en premier** sur le prompt courant et tranche le routage en interne : le
+signal qui aurait sélectionné `/gradatum-knowledge-base-usage` est consommé ici. Ce renvoi est donc
+son **seul** chemin d'accès — ne pas compter sur une sélection concurrente, elle n'aura pas lieu.
+
+Avant l'étape 1, si **l'une** de ces conditions tient :
+
+- la question porte sur du **code** (signature d'un symbole, définition, structure d'un module,
+  appelants) plutôt que sur une décision ou un incident → la bonne surface est l'**index de code**,
+  pas le vault de mémoire ; un keyword-search vault ne rendra rien d'utile ;
+- la **section** cible d'une écriture à venir est incertaine ;
+- on hésite entre **chercher** et **écrire** ;
+
+→ invoquer **`/gradatum-knowledge-base-usage`** et suivre son routage. C'est un skill
+d'orientation : aucun appel, aucun coût vault. Il rend la surface et la section ; les étapes
+ci-dessous s'appliquent ensuite, ou sont remplacées par la surface qu'il désigne.
+
+Aucun doute → poursuivre directement.
 
 ## Action si CHERCHE
 
@@ -96,8 +119,8 @@ Ne rien faire. Pas d'output. Traiter le prompt normalement.
 ## Sections canoniques gradatum
 
 Liste et sémantique des sections : **autorité unique `/gradatum-vault-write`** (reflet
-opérationnel de `Section::ALL`, code serveur). Gel de gouvernance de cette taxonomie acté en
-interne (réf. NOMENCLATURE §10a, homelab). Ne pas la recopier ici et ne graver aucun compte —
+opérationnel de `Section::ALL`, code serveur). La gouvernance de cette taxonomie relève de
+l'installation, pas de ce fichier. Ne pas la recopier ici et ne graver aucun compte —
 un nombre dupliqué dérive : ce fichier a annoncé « 11 » pendant deux extensions de la
 taxonomie.
 
