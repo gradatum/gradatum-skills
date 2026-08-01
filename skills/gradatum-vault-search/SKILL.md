@@ -4,108 +4,91 @@ description: >
   Recherche dans le vault gradatum (LIVE :19090) — invoquer en réflexion
   ("ai-je déjà une note sur X ?", "on a tranché ce sujet ?", "je vais proposer/décider/écrire"),
   recherche explicite ("trouve les notes sur Y"), planification, brainstorming,
-  avant toute écriture vault (anti-doublon). Output compact ULID + score.
-  Composable par /gradatum-skill-reminder.
+  avant toute écriture vault (anti-doublon). Composable par /gradatum-skill-reminder.
 type: gradatum
 compatibility: claude-code (>= 2.1.0)
-argument-hint: "<query sémantique>"
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/search.sh *)
+allowed-tools: mcp__gradatum__vault_search
 ---
 
 # /gradatum-vault-search
 
-Outil atomique de recherche dans le vault gradatum. Réutilisable par
-n'importe quel skill L1 (reminder, memorize) ou agent en réflexion.
+Outil atomique de recherche dans le vault gradatum. Réutilisable par n'importe quel skill L1
+(reminder, memorize) ou agent en réflexion.
 
 ## Quand invoquer
 
 - Réflexion sur un sujet potentiellement déjà traité (avant proposition / décision / planification)
 - Recherche explicite demandée par l'utilisateur ou un autre skill
-- Vérification anti-doublon avant écriture vault (futurs skills L1 d'écriture)
+- Vérification anti-doublon avant écriture vault (obligatoire avant `/gradatum-vault-write` create)
 - Composition par /gradatum-skill-reminder sur prompt utilisateur non trivial
 
 ## Usage
 
-!`${CLAUDE_SKILL_DIR}/scripts/search.sh "$ARGUMENTS"`
+Appeler directement l'outil **`mcp__gradatum__vault_search`** — seul `query` est requis. Les
+autres paramètres (filtres, fenêtre temporelle, pagination…), leurs défauts et leurs règles de
+validation sont documentés par l'inputSchema de l'outil — ne pas les recopier ici, un paramètre
+dupliqué dérive dès que le serveur évolue.
 
-## Output format
+Deux réflexes que le schéma seul ne donne pas :
 
-Le script renvoie une ligne unique :
+- **Ne jamais glisser un nom de section dans la `query` texte** pour filtrer — ça pollue le
+  ranking. Utiliser le paramètre de filtrage dédié.
+- **Cet outil ne renvoie jamais le corps intégral de la note.** L'étape suivante naturelle est
+  `mcp__gradatum__vault_read` sur le résultat pertinent.
 
-```
-🧠 N notes : <ulid-26> [<score>], <ulid-26> [<score>], ...
-```
+## Mode compact — activer `compact: true`
 
-Ou si aucun résultat :
+Le paramètre `compact: true` fait remonter la réponse sous forme d'un objet unique
+`{ "compact": "<texte>" }` — une projection texte optimisée pour un consommateur LLM, rendue
+directement par le service (elle ne dépend plus d'un script côté client). Par défaut
+(`compact` absent ou `false`), la réponse complète historique est inchangée.
 
-```
-🧠 0 note pertinente sur ce sujet
-```
+Le texte compact liste chaque résultat sous la forme `<ulid> [<score>]`, et — **seulement si le
+paramètre de comptage corpus a été activé sur la même requête** — ajoute une mention explicite :
 
-| Élément | Signification |
-|---|---|
-| `🧠 N` | N notes vault retournées par gradatum pour la query |
-| `<ulid-26>` | ID note — utilisable avec `mcp__gradatum__vault_read` |
-| `[<score>]` | Score de pertinence BM25 (plage variable selon version gradatum) |
+- comptage à `0` ⇒ le texte énonce que l'absence de match lexical est **prouvée** et que les
+  résultats affichés ne sont que des voisins sémantiques ;
+- comptage `> 0` ⇒ le texte indique le nombre de matchs lexicaux dans le corpus (avec un
+  marqueur si la valeur est plafonnée).
+
+Activer `compact: true` ne suffit donc pas à obtenir cette preuve d'absence — les deux paramètres
+sont indépendants et doivent être posés ensemble quand le besoin est celui du §4 ci-dessous.
 
 ## Comment décider (interprétation par l'agent)
 
-1. **Vérifier "déjà connu"** : si l'ULID figure déjà dans le contexte conversationnel courant
-   (grep mental), tu as déjà cette info — pas besoin de relire.
+1. **Vérifier « déjà connu »** : si le résultat figure déjà dans le contexte conversationnel
+   courant, ne pas relire.
 
-2. **Action de lecture** : invoquer `mcp__gradatum__vault_read` avec `note_id="<ulid>"`
-   pour récupérer le contenu détaillé d'un résultat pertinent.
+2. **Action de lecture** : `mcp__gradatum__vault_read` sur le résultat pertinent pour récupérer
+   le corps complet.
 
-3. **Si N=0** : pas d'historique vault **classé** sur ce sujet — ce n'est pas un échec.
+3. **Résultat vide** : pas d'historique vault **classé** sur ce sujet — ce n'est pas un échec.
 
-4. **Preuve d'absence (`corpus_match_count`)** — usage avancé, off par défaut. La recherche est
-   **hybride** (lexicale BM25/FTS5 ∪ sémantique vectorielle) : les `N` résultats incluent **toujours**
-   des voisins sémantiques. Conséquence attendue (cas nominal, pas une anomalie) : sur une query dont
-   aucun mot n'est dans le corpus, on observe `N>0` (voisins sémantiques) **avec** `corpus_match_count=0`.
-   Donc `N>0` ne prouve jamais qu'une note traite réellement du sujet. Activer cette preuve d'absence
-   seulement quand le besoin est strict : avant d'affirmer « on n'a jamais écrit le terme X », ou un
-   anti-doublon sur un terme court/ambigu (acronyme, nom propre) — pour un titre descriptif normal,
-   `N` + scores suffisent (ne pas payer le coût systématiquement).
+4. **Preuve d'absence** — usage avancé, off par défaut. La recherche est **hybride** (lexicale
+   ∪ sémantique) : les résultats incluent **toujours** des voisins sémantiques. Conséquence
+   attendue — cas nominal, pas une anomalie : sur une requête dont aucun mot n'est dans le
+   corpus, on observe des résultats non vides **avec** un comptage lexical à zéro. Un nombre de
+   résultats non nul ne prouve donc **jamais** qu'une note traite réellement du sujet.
 
-   Activation : `GRADATUM_INCLUDE_CORPUS_COUNT=1` (gradatum **≥ v0.5.2**). La sortie ajoute alors
-   `corpus_match_count=<n>` = nombre de **matchs lexicaux** (BM25/FTS5) de la query dans tout le corpus
-   — compteur **lexical**, indépendant du ranking et **découplé de `N`**.
-   - `corpus_match_count=0` ⇒ **aucun match lexical** : absence prouvée du terme. Les résultats
-     affichés (même si `N>0`, cas attendu) sont exclusivement des voisins sémantiques → à écarter
-     pour un « a-t-on déjà ce terme ? ».
-   - `corpus_match_count>0` ⇒ des notes contiennent les termes. Si elles ne figurent pas dans le
-     top-K affiché, elles ont été déclassées par le ranking — relancer **une nouvelle recherche**
-     avec un `GRADATUM_REMINDER_TOP_K` plus élevé ou une query affinée (ce n'est pas un retour
-     automatique : c'est un appel explicite supplémentaire, à faire seulement si le besoin le justifie).
-   - Sur gradatum **< v0.5.2** le compteur est absent (ligne non affichée) — pas de preuve d'absence
-     disponible, seulement l'absence de résultat classé.
+   N'activer le comptage corpus que quand le besoin est strict : avant d'affirmer « on n'a jamais
+   écrit le terme X », ou pour un anti-doublon sur un terme court/ambigu (acronyme, nom propre).
+   Pour un titre descriptif normal, les résultats + scores suffisent.
 
-## Variables d'environnement (optionnelles)
+   - comptage `= 0` ⇒ absence du terme prouvée. Les résultats affichés sont exclusivement des
+     voisins sémantiques → à écarter pour un « a-t-on déjà ce terme ? ».
+   - comptage `> 0` mais absent du haut de classement rendu ⇒ déclassé par le ranking. Relancer
+     une **nouvelle** recherche explicite (fenêtre de résultats plus large, requête affinée, ou
+     filtre plus précis) — ce n'est pas un retour automatique.
 
-| Variable | Défaut | Description |
-|---|---|---|
-| `GRADATUM_SERVER_URL` | `http://<gradatum-server>` | URL du serveur gradatum |
-| `GRADATUM_API_KEY_FILE` | `/etc/gradatum/claude-code.api-key` | Fichier contenant la clé API |
-| `GRADATUM_REMINDER_TOP_K` | `10` | Nombre max de résultats retournés |
-| `GRADATUM_REMINDER_LOG` | `0` | `1` pour activer le log dans `/tmp/gradatum-reminder-stats.log` |
-| `GRADATUM_INCLUDE_CORPUS_COUNT` | `0` | `1` → ajoute `corpus_match_count` (preuve d'absence ; gradatum ≥ v0.5.2) |
+## Anti-patterns
 
-## Erreurs
-
-Si gradatum :19090 retourne une erreur HTTP (5xx, timeout, 404) ou si l'échange JWT échoue,
-le script propage le code d'erreur en stderr. L'agent décide quoi faire (retry manuel, ignore).
-
-Pas de fallback dans le scope du script — les fallbacks sont gérés par gradatum-server côté serveur.
-
-## Exemples d'invocation
-
-```bash
-# Recherche full-text
-/gradatum-vault-search "architecture skills renommage 2026-05"
-
-# Recherche par section (via variable d'env non encore supportée dans search.sh v1 — passer dans la query)
-/gradatum-vault-search "decisions gradatum pivot 2026-05"
-
-# Anti-doublon avant écriture
-/gradatum-vault-search "pattern gradatum primary source unique"
-```
+- Ne pas filtrer par section en polluant la `query` — utiliser le paramètre dédié.
+- Ne pas conclure « sujet absent » sur un résultat vide sans le comptage corpus activé : ça
+  prouve seulement qu'aucune note n'a été **classée**, dans la surface scannée.
+- Ne pas conclure « sujet présent » sur des résultats non vides : voir §4, les voisins sémantiques
+  sont toujours là.
+- Ne pas supposer que `compact: true` active seul la preuve d'absence — les deux paramètres sont
+  indépendants (voir §Mode compact).
+- Ne pas gonfler la limite de résultats par réflexe — ce skill est invoqué à chaque réponse
+  substantielle par `/gradatum-skill-reminder`, l'injection de contexte est multipliée par la
+  fréquence.

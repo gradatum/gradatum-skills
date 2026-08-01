@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # end-to-end.sh — Smoke test E2E contre gradatum LIVE :19090
 #
-# Tests : Auth Path 2 (API key → JWT) + vault_search + validation structure réponse
+# Tests : Auth Path 2 (API key → JWT) + vault_search + validation structure réponse.
+#         C'est la même surface HTTP (/auth/exchange + /api/v1/vault_search) que
+#         l'outil MCP mcp__gradatum__vault_search appelle en interne — le smoke
+#         valide donc le contrat que le skill L0 MCP consomme.
 #
 # Usage  : bash tests/smoke/end-to-end.sh
 # Exit   : 0 = tous les checks OK, 1 = au moins un check KO
@@ -14,8 +17,6 @@ set -euo pipefail
 
 GRADATUM_URL="${GRADATUM_URL:-http://<gradatum-server>}"
 API_KEY_FILE="${GRADATUM_API_KEY_FILE:-/etc/gradatum/claude-code.api-key}"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SEARCH_SH="$SCRIPT_DIR/../../skills/gradatum-vault-search/scripts/search.sh"
 
 # Compteurs
 PASS=0
@@ -65,12 +66,6 @@ if command -v jq >/dev/null 2>&1; then
   check_pass "jq disponible"
 else
   check_fail "jq manquant"
-fi
-
-if [ -x "$SEARCH_SH" ]; then
-  check_pass "search.sh présent et exécutable"
-else
-  check_fail "search.sh absent ou non exécutable : $SEARCH_SH"
 fi
 
 echo ""
@@ -201,28 +196,6 @@ if [ -n "${JWT:-}" ]; then
   fi
 else
   echo "  [SKIP] vault_search (pas de JWT disponible)"
-fi
-
-echo ""
-
-# ---------------------------------------------------------------------------
-# Check 4 : Script search.sh bout-en-bout
-# ---------------------------------------------------------------------------
-
-echo "--- Check 4 : search.sh bout-en-bout ---"
-
-SEARCH_OUTPUT=$(bash "$SEARCH_SH" "gradatum council decisions 2026" 2>&1) || {
-  check_fail "search.sh retourné un code d'erreur" "Output : $SEARCH_OUTPUT"
-  SEARCH_OUTPUT=""
-}
-
-if [ -n "$SEARCH_OUTPUT" ]; then
-  if [[ "$SEARCH_OUTPUT" == "🧠"* ]]; then
-    check_pass "search.sh retourne le format attendu '🧠 ...'"
-    echo "         Output : $SEARCH_OUTPUT"
-  else
-    check_fail "search.sh output inattendu (ne commence pas par '🧠')" "Output : $SEARCH_OUTPUT"
-  fi
 fi
 
 echo ""
