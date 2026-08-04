@@ -10,7 +10,6 @@
   "homepage": "https://github.com/gradatum/gradatum-skills",
   "skills": [
     "./skills/gradatum-code-map",
-    "./skills/gradatum-desktop",
     "./skills/gradatum-feature-eval",
     "./skills/gradatum-knowledge-base-usage",
     "./skills/gradatum-lessons-recall",

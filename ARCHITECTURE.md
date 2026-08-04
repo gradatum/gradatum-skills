@@ -28,8 +28,7 @@ gradatum-skills/                                      [CORE]    plugin Claude Co
 │   ├── gradatum-skill-reminder/SKILL.md              [FEATURE] L1 — métamémoire (chercher)
 │   ├── gradatum-memorize/SKILL.md                    [FEATURE] L1 — capture/synthèse (écrire)
 │   ├── gradatum-knowledge-base-usage/SKILL.md        [FEATURE] L1 — routage entre bases
-│   ├── gradatum-feature-eval/SKILL.md                [FEATURE] L1 — auto-évaluation PROPOSE-ONLY
-│   └── gradatum-desktop/SKILL.md                     [FEATURE] variante Claude Desktop consolidée
+│   └── gradatum-feature-eval/SKILL.md                [FEATURE] L1 — auto-évaluation PROPOSE-ONLY
 ├── tests/
 │   ├── bats/                                         [UTILITY] tests unitaires hors réseau
 │   ├── smoke/                                        [UTILITY] tests contre un serveur joignable

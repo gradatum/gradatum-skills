@@ -22,7 +22,6 @@ et le format de réponse appartiennent au serveur MCP, pas à ce dépôt.
 | `/gradatum-skill-reminder` | L1 | Métamémoire auto-déclenchée — détermine si le contexte courant nécessite une recherche vault, délègue à `/gradatum-vault-search`. Pure logique de décision. | ✅ LIVRÉ |
 | `/gradatum-knowledge-base-usage` | L1 | Guide de routage entre le vault (décisions, council, architecture, debug) et l'index de code dérivé. Porte la règle search-before-write, le triage signal → section et les conventions d'écriture. | ✅ LIVRÉ |
 | `/gradatum-feature-eval` | L1 | Auto-évaluation périodique des features réellement exploitées, puis propositions priorisées. **PROPOSE-ONLY** : ne modifie jamais le produit, rend un rapport. | ✅ LIVRÉ |
-| `gradatum-desktop` | MCP-only | Variante consolidée pour **Claude Desktop** via connecteur MCP (Streamable HTTP + Bearer). Search-before-write, triage des sections, gatekeeper, prudence sur les outils destructifs. Les autres skills déclarent `compatibility: claude-code` et ciblent l'invocation par slash-command du harnais. | ✅ LIVRÉ |
 
 ### /gradatum-vault-search (L0)
 
