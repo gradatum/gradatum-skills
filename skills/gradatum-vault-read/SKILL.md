@@ -6,7 +6,6 @@ description: >
   scores, PAS le corps des notes) ou quand un chemin est déjà connu. Ne cherche pas — exige un
   chemin exact. Output : markdown intégral + `sha256` (requis pour une mise à jour in-place
   ultérieure). Étape suivante naturelle d'un /gradatum-vault-search.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_read
 ---

@@ -4,7 +4,7 @@ Index of design proposals for the Gradatum memory backbone engine and related gr
 
 RFCs in this repo cover features and processes for the Gradatum engine (`gradatum`, `gradatum-www`), the gradatum-skills Claude Code distributable plugin, and the cross-cutting meta-processes applying to Gradatum RFC governance.
 
-See `NOMENCLATURE.md §9-bis` (homelab convention — RFC vs ADR, header format, cross-repo refs) in the homelab config repository.
+Conventions for this repo — RFC vs ADR, header format, cross-repo refs — are defined below under **Templates and guidance**.
 
 ## Current RFCs
 
@@ -23,7 +23,7 @@ See `NOMENCLATURE.md §9-bis` (homelab convention — RFC vs ADR, header format,
 
 **Note** : RFC-0009 (Success criteria measurable) is `required_by` all future RFCs — it defines the pattern for adding chiffered success criteria and validation reports that future RFCs must follow.
 
-**Note RFC-0010** : ce RFC est en `Draft` initial, **orientation amont non encore validée par l'opérateur** (catégories canoniques NOMENCLATURE §10 vs tags libres vs sous-catégories per-projet). Il ne passera `Discussion` qu'après clarification §2.
+**Note RFC-0010** : ce RFC est en `Draft` initial, **orientation amont non encore validée** (sections canoniques du serveur vs tags libres vs sous-catégories per-projet). Il ne passera `Discussion` qu'après clarification §2.
 
 ## Process
 
@@ -38,7 +38,7 @@ See `NOMENCLATURE.md §9-bis` (homelab convention — RFC vs ADR, header format,
 ## Templates and guidance
 
 - Use [`../../RFC-TEMPLATE.md`](../../RFC-TEMPLATE.md) as the skeleton.
-- Header format: YAML frontmatter (cf. `NOMENCLATURE.md §9-bis.c`).
+- Header format: YAML frontmatter — see [`../../RFC-TEMPLATE.md`](../../RFC-TEMPLATE.md) for the field set.
 - Cross-repo refs: `<repo>:RFC-XXXX` (e.g. `libskills:RFC-0001`, `gradatum:RFC-0005`).
 - Intra-repo refs: `RFC-XXXX` direct (no prefix needed).
 - Focus on **why** (motivation) and **what** (design). Implementation follows.

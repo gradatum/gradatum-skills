@@ -2,7 +2,6 @@
 name: gradatum-lessons-recall
 description: >
   Rappelle les leçons du vault gradatum pour une CLASSE à risque (deploy/release/migration/anti-leak/auth-secrets/data-integrity…) — recall JIT F-60 avant action risquée. Output compact ULID+titre+snippet. Non bloquant. Composable par gradatum-skill-reminder et gates sécurité.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_lessons_recall
 ---

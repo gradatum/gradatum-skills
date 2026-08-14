@@ -1,0 +1,50 @@
+# RELEASE-MANIFEST.yaml — gradatum-skills
+#
+# Lu par le gate de release (safety-release-guard, Phase 0bis). Décrit CE QUI SE VÉRIFIE
+# avant un tag, pas la procédure de tag elle-même.
+#
+# Particularité de ce dépôt : il ne compile rien. Le produit est un ensemble de SKILL.md
+# et un manifeste de plugin. Les `validate` sont donc les vérificateurs du dépôt, pas
+# une toolchain. Chacun rend un code de sortie exploitable — un `tail` dans un pipe le
+# masquerait (constaté 2026-08-14 : verify-mcp-tools.sh imprimait FAIL en RC apparent 0
+# parce que le RC lu était celui de `tail`).
+
+project: gradatum-skills
+
+# Source unique de la version. Le CHANGELOG et le tag s'y alignent, jamais l'inverse.
+version_source: .claude-plugin/plugin.json
+
+validate:
+  # Toute référence /skill nommée dans un SKILL.md résout, et aucune ne descend
+  # du produit vers un skill local non distribué.
+  - bash tests/verify-skill-refs.sh
+  # Le produit s'installe depuis une référence commitée.
+  - bash tests/verify-install.sh
+  # ATTENTION — ce vérificateur exige une liste d'outils en FICHIER (--tools et/ou
+  # --client-tools). Sans elle il sort en RC=1 et le dit : il refuse de rendre un vert
+  # qui ne prouve rien. C'est voulu, ne pas le « réparer » en le rendant permissif.
+  # La surface qui décide de l'exécutabilité est celle du CLIENT, pas du serveur.
+  - bash tests/verify-mcp-tools.sh --tools "${MCP_TOOLS_FILE}" --client-tools "${MCP_CLIENT_TOOLS_FILE}"
+
+# Documents à réaligner avant tout tag.
+docs:
+  - CHANGELOG.md
+  - README.md
+  - ARCHITECTURE.md
+  - DEPENDENCIES.md
+  - .claude-plugin/plugin.json
+
+tag:
+  pattern: "v{version}"
+  triggers_ci: true
+
+# Le remote `github` n'est PAS verrouillé en push sur ce dépôt — un tag y est
+# immédiatement public et irréversible. Ordre imposé : remote interne d'abord,
+# surface publique ensuite, et jamais avant le feu vert du parefeu council.
+# Les URL des remotes ne sont pas recopiées ici : `git remote -v` fait foi, et une
+# adresse gravée dans un fichier versionné est une fuite en puissance.
+publish:
+  internal_first: origin
+  public: github
+
+capture: gov-save-decision

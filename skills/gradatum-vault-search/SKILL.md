@@ -5,7 +5,6 @@ description: >
   ("ai-je déjà une note sur X ?", "on a tranché ce sujet ?", "je vais proposer/décider/écrire"),
   recherche explicite ("trouve les notes sur Y"), planification, brainstorming,
   avant toute écriture vault (anti-doublon). Composable par /gradatum-skill-reminder.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_search
 ---

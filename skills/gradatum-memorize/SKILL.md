@@ -8,7 +8,6 @@ description: >
   Porte un événement à la fois : ne couvre ni le dépôt (commit, push, tag), ni les documents
   locaux, ni aucune synchronisation d'ensemble — pour cela, l'installation a ses propres skills.
   SKIP si éphémère ou déjà dans code/git.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_search mcp__gradatum__vault_read mcp__gradatum__vault_write mcp__gradatum__job_status
 ---

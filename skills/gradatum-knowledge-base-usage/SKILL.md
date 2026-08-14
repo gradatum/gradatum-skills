@@ -8,7 +8,6 @@ description: >
   nominal — ce dernier est invoqué en premier et consomme le signal), ou directement sur un doute
   de surface (« question de code ou question de mémoire ? ») ou de section (« où ranger cette
   note ? »), et avant toute proposition technique. N'appelle rien : il désigne, puis rend la main.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 ---
 

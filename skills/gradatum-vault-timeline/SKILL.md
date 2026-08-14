@@ -7,7 +7,6 @@ description: >
   reconstruire une chronologie, ou récupérer l'état d'un sujet à une période donnée (as-of) — par
   le TEMPS, pas par pertinence sémantique (≠ /gradatum-vault-search). Composable par
   /gradatum-skill-reminder.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_timeline
 ---

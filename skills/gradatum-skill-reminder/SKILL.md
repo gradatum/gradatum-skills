@@ -14,8 +14,8 @@ description: >
   bornés côté CHERCHE ; le chemin SKIP reste zéro vault call. Sur doute de surface (question de
   code plutôt que de mémoire) ou de section, renvoie vers /gradatum-knowledge-base-usage — ce
   renvoi est le seul chemin d'accès à ce dernier, le signal étant consommé ici.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
+allowed-tools: mcp__gradatum__vault_timeline mcp__gradatum__vault_proactive_recall mcp__gradatum__vault_proactive_recall_feedback
 ---
 
 # /gradatum-skill-reminder

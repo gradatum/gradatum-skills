@@ -11,7 +11,6 @@ description: >
   ré-ingère la carte de code », « indexe ce projet », « la carte de code est périmée », « l'index
   ne connaît pas ce symbole », ou après un commit qui change des signatures. Économise des tokens
   vs la lecture brute. Composable par /gradatum-skill-reminder.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__code_scope
 ---

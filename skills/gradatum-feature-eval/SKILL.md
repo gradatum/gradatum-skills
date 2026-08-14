@@ -6,7 +6,6 @@ description: >
   propositions d'amélioration priorisées. **PROPOSE-ONLY** — la routine ne modifie jamais le
   produit, elle rend un rapport. Invoquer au plus une fois par fenêtre de 24 h, ou manuellement.
   SKIP si le serveur n'est pas sain.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_status mcp__gradatum__vault_timeline mcp__gradatum__vault_search mcp__gradatum__vault_list mcp__gradatum__vault_tags mcp__gradatum__vault_authors mcp__gradatum__vault_lessons_recall
 ---

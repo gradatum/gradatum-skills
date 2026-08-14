@@ -6,6 +6,43 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 
 > Pas encore publié. Le tag public est synchronisé avec une release du serveur `gradatum`.
 
+### Fixed — conformité frontmatter pour les chemins de packaging spec (2026-08-14)
+
+- Retrait de la clé `type: gradatum` du frontmatter des 10 `SKILL.md`. Cette clé n'était lue par
+  aucun test, aucun hook, ni le manifeste du plugin — elle n'a jamais eu de rôle fonctionnel dans
+  Claude Code, qui est permissif sur les clés hors spec. La spécification officielle des skills
+  n'autorise que six propriétés (`name`, `description`, `license`, `compatibility`, `metadata`,
+  `allowed-tools`) pour les chemins claude.ai skill uploads / Skills API / `package_skill.py`, et
+  rejette toute clé hors liste par une erreur dure au packaging. **Ce retrait ne corrige aucun
+  défaut observé dans Claude Code lui-même** — il lève un blocage latent pour les chemins de
+  distribution alternatifs à ce harnais.
+
+### Fixed — `allowed-tools` manquant sur `gradatum-skill-reminder` (2026-08-14)
+
+- Le skill appelait `vault_timeline`, `vault_proactive_recall` et `vault_proactive_recall_feedback`
+  sans les déclarer, seul des neuf skills appelant un outil à ne pas le faire. `DEPENDENCIES.md` et
+  `ARCHITECTURE.md` affirmaient pourtant la propriété pour tous. La déclaration est ajoutée ;
+  `vault_search` n'y figure pas — le skill ne l'appelle jamais lui-même, il délègue à
+  `/gradatum-vault-search`, qui le déclare. Un `allowed-tools` n'agrège pas les outils de ses
+  délégués.
+
+### Fixed — affirmation de sécurité inexacte dans `ARCHITECTURE.md` (2026-08-14)
+
+- Le document affirmait que « la surface d'attaque d'un skill se réduit à ce que son champ
+  `allowed-tools` autorise ». C'est l'inverse du mécanisme documenté : `allowed-tools` **pré-autorise**
+  les outils listés le temps du tour, pour éviter une demande de permission ; il ne retire rien, et
+  tout outil du harnais reste appelable. Le champ qui restreint est `disallowed-tools`, qu'aucun
+  skill de ce dépôt ne déclare. Formulation corrigée pour décrire le mécanisme réel.
+
+### Fixed — tests anti-fuite qui publiaient les identifiants protégés (2026-08-14)
+
+- Deux tests `bats` vérifiaient l'absence d'identifiants internes dans les `SKILL.md` en énumérant
+  ces identifiants dans leur motif `grep` — publiant ainsi, dans un dépôt public, exactement ce
+  qu'ils défendaient. Les motifs nominatifs sont retirés au profit de motifs de **classe** : les
+  trois plages RFC1918 (au lieu d'une seule auparavant), `localhost:<port>` et loopback avec port,
+  chemins de répertoire personnel, adresses e-mail, et formes de secret connues. La propriété
+  testée est préservée ; aucune valeur réelle n'est plus nommée.
+
 ### Changed — migration MCP-native complète (2026-08-01)
 
 - **Les six skills L0 appellent désormais un outil MCP.** Plus aucun `curl`, plus aucun script

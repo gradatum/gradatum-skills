@@ -240,7 +240,7 @@ gradatum-server returns instructions hint
 Claude client also reads its local ~/.claude/skills/ catalogue
    │
    ▼
-Operator: "Show me notes about ROCm in the homelab vault"
+Operator: "Show me notes about ROCm in the vault"
    │
    ▼
 Claude detects context match (vault keywords + gradatum-search tool)

@@ -71,7 +71,7 @@ Phase 2 outputs
         │
         ▼ get / list / search / subscribe
    Consumer trait              (interface sortie)
-   ├─ External validation (operator review, council Art.19, threshold auto)
+   ├─ External validation (operator review, governance review, threshold auto)
    ├─ Agent runtime consumer
    └─ Export tool
 ```

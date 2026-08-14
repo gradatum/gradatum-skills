@@ -96,8 +96,13 @@ Aucun (plugin sans runtime permanent).
 - **Pas de hook** `UserPromptSubmit` ni autre mécanisme propre à un harnais → le déclenchement
   repose sur la `description` du `SKILL.md` et sur une règle de configuration harnais.
 - **Sécurité** : aucun secret n'est lu, nommé ni transporté par ce dépôt. Le credential du serveur
-  `gradatum` appartient à la configuration du serveur MCP du consommateur. La surface d'attaque
-  d'un skill se réduit à ce que son champ `allowed-tools` autorise.
+  `gradatum` appartient à la configuration du serveur MCP du consommateur. En revanche,
+  `allowed-tools` **ne réduit aucune surface** : le champ *pré-autorise* les outils listés le temps
+  du tour qui invoque le skill, pour éviter une demande de permission. Il ne retire rien — tout
+  outil du harnais reste appelable, et les règles de permission du consommateur continuent de
+  gouverner ceux qui n'y figurent pas. Le champ qui restreint est `disallowed-tools` ; ce dépôt
+  n'en déclare aucun. La surface d'appel effective est donc celle que le consommateur configure,
+  jamais celle que ce dépôt imposerait.
 - **Asynchronie de l'écriture** : `vault_write` accuse une mise en file ; l'état réel se lit via
   `job_status` jusqu'à ce que le champ `terminal` soit vrai — jamais par une liste d'états gravée
   côté client.

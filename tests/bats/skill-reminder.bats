@@ -102,13 +102,22 @@ SKILL_MD="$SKILL_DIR/SKILL.md"
   [ "$status" -ne 0 ]
 }
 
-@test "SKILL.md ne contient pas de nom d'hôte interne sensible" {
-  run grep -E "<inference-host>|192\.168\." "$SKILL_MD"
+# Motifs de CLASSE uniquement, jamais une valeur reelle. Un test public qui enumere
+# les identifiants qu'il protege les PUBLIE en pretendant les defendre : le motif
+# devient la fuite. Les listes nominatives restent cote prive, dans le scan de
+# secrets au commit. Couvre desormais les trois plages RFC1918, pas seulement une.
+@test "SKILL.md ne contient aucune adresse d'hote interne" {
+  run grep -nE "\b10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b|\b172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}\b|\b192\.168\.[0-9]{1,3}\.[0-9]{1,3}\b|localhost:[0-9]+|127\.0\.0\.1:[0-9]+" "$SKILL_MD"
   [ "$status" -ne 0 ]
 }
 
-@test "SKILL.md ne contient pas d'identité opérateur sensible" {
-  run grep -iE "Maintainers|maintainer|<container>|<forge>|the operator|the operator|maintainer" "$SKILL_MD"
+@test "SKILL.md ne contient aucun identifiant de personne ou de machine" {
+  run grep -nE "/home/[a-z_][a-z0-9_-]*/|/Users/[a-zA-Z]|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" "$SKILL_MD"
+  [ "$status" -ne 0 ]
+}
+
+@test "SKILL.md ne contient aucun secret de forme connue" {
+  run grep -nE "sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{12,}|ak_[0-9a-f]{8,}" "$SKILL_MD"
   [ "$status" -ne 0 ]
 }
 

@@ -7,7 +7,6 @@ description: >
   doublon. Usage : persister durablement une décision, une leçon, une analyse, un compte-rendu.
   L'écriture est ASYNCHRONE (accusé immédiat + identifiant de job) — la confirmation se fait en
   interrogeant l'état du job jusqu'à un état terminal, jamais par supposition.
-type: gradatum
 compatibility: claude-code (>= 2.1.0)
 allowed-tools: mcp__gradatum__vault_write mcp__gradatum__job_status
 ---
