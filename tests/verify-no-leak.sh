@@ -77,9 +77,58 @@ report "secret de forme connue" \
 report "référence à une gouvernance non définie dans ce dépôt" \
   'NOMENCLATURE|CONSTITUTION|council Art\.|Art\.1[5-9]|gov-[a-z-]+|safety-[a-z-]+'
 
+# ---------------------------------------------------------------------------
+# L'HISTORIQUE EST AUSSI PUBLIÉ — et c'est l'angle mort le plus coûteux.
+#
+# Un fichier assaini dans l'arbre courant reste lisible dans le commit qui le
+# portait avant. Pousser une branche publie tous ses ancêtres : nettoyer HEAD ne
+# nettoie rien. Un contrôle qui ne scanne que l'arbre courant rend donc un vert
+# sincère et faux — c'est exactement ce qui est arrivé à ce fichier le jour de sa
+# création, et un regard extérieur a dû le lui apprendre.
+#
+# Deux surfaces distinctes ici, souvent confondues :
+#   - le CONTENU des fichiers à chaque révision (ce que voit `git log -p`) ;
+#   - les MESSAGES de commit, qu'aucune réécriture d'identité ne touche.
+# ---------------------------------------------------------------------------
+
+echo
+echo "=== Historique — contenu des révisions et messages de commit ==="
+
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "[ SKIP ] pas un dépôt git — contrôle d'historique sans objet"
+else
+  # Un motif unique, dérivé des classes ci-dessus : on cherche des FORMES, jamais
+  # des valeurs réelles — même discipline que pour l'arbre courant.
+  HIST='\b10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b|\b172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}\b|\b192\.168\.[0-9]{1,3}\.[0-9]{1,3}\b|(localhost|127\.0\.0\.1):[0-9]+|/home/[a-z_][a-z0-9_-]*/|/Users/[a-zA-Z]|sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+
+  msg_hits=$(git log --format='%H %s %b' 2>/dev/null | grep -nEI "$HIST" 2>/dev/null)
+  if [ -n "$msg_hits" ]; then
+    echo "[FUITE] message de commit"
+    printf '%s\n' "$msg_hits" | head -20 | sed 's/^/    /'
+    fail=1
+  else
+    echo "[  OK  ] messages de commit ($(git rev-list HEAD --count 2>/dev/null) commits)"
+  fi
+
+  # Contenu à chaque révision. Coûteux mais borné par la taille du dépôt, et c'est
+  # le seul contrôle qui prouve qu'un secret retiré n'est pas resté derrière.
+  rev_hits=''
+  for rev in $(git rev-list HEAD 2>/dev/null); do
+    h=$(git grep -nEI "$HIST" "$rev" 2>/dev/null | head -3)
+    [ -n "$h" ] && rev_hits="${rev_hits}${h}"$'\n'
+  done
+  if [ -n "$rev_hits" ]; then
+    echo "[FUITE] contenu d'une révision antérieure"
+    printf '%s' "$rev_hits" | head -20 | sed 's/^/    /'
+    fail=1
+  else
+    echo "[  OK  ] contenu de toutes les révisions atteignables"
+  fi
+fi
+
 echo
 if [ "$fail" -eq 0 ]; then
-  echo "PASS — aucune classe de contexte privé trouvée sur la surface versionnée"
+  echo "PASS — aucune classe de contexte privé, ni dans l'arbre ni dans l'historique"
   exit 0
 fi
 echo "FAIL — au moins une classe trouvée ; corriger AVANT tout tag public (surface figée par version)" >&2
