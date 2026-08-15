@@ -71,7 +71,7 @@ remove_product_skill() {
   git -C "$SNAP" -c user.email=tests@example.invalid -c user.name=tests commit -qm "retrait $1"
 }
 
-# Skill étranger au produit, tel qu'en pose un opérateur (gov-*, memo, safety-*…)
+# Skill étranger au produit, tel qu'en pose un opérateur dans son installation.
 put_foreign_skill() {
   mkdir -p "$DEST/$1"
   printf -- '---\nname: %s\n---\n\nSkill local, étranger au produit.\n' "$1" > "$DEST/$1/SKILL.md"
@@ -127,7 +127,7 @@ put_foreign_skill() {
   [ ! -f "$RECEIPT" ]
   run_sync
   [ "$status" -eq 0 ]
-  [ -f "$DEST/safety-jetable/SKILL.md" ]
+  [ -f "$DEST/etranger-jetable/SKILL.md" ]
 }
 
 # ---------------------------------------------------------------------------

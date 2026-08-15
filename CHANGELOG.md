@@ -6,10 +6,12 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 
 ## [0.2.0] — 2026-08-14
 
-> Première release publique du plugin. Synchronisée avec la sortie du serveur `gradatum` 2.0.0 :
-> publiée en même temps, **numérotée indépendamment**. Le plugin garde son propre cycle SemVer —
-> « synchronisé » ne veut pas dire « même numéro », et graver le numéro du serveur ici créerait un
-> couplage qui forcerait un tag du plugin à chaque release serveur, même sans changement.
+> **Premier tag public** du plugin — le dépôt, lui, est public et poussé depuis plus longtemps ;
+> ce qui est nouveau ici est la version étiquetée, pas la visibilité. Synchronisée avec la sortie
+> du serveur `gradatum` 2.0.0 : publiée en même temps, **numérotée indépendamment**. Le plugin garde
+> son propre cycle SemVer — « synchronisé » ne veut pas dire « même numéro », et graver le numéro du
+> serveur ici créerait un couplage qui forcerait un tag du plugin à chaque release serveur, même
+> sans changement.
 
 ### Fixed — conformité frontmatter pour les chemins de packaging spec (2026-08-14)
 

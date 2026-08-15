@@ -147,7 +147,7 @@ To avoid blocking on a Rust ONNX port, Phase 1 ships a small Python sidecar:
 
 ```
 gradatum-privacy (Rust crate)
-    └─► HTTP local :19097/scan  ──► privacy-sidecar (Python)
+    └─► HTTP local <port>/scan  ──► privacy-sidecar (Python)
                                        └─► OpenAI Privacy Filter ONNX model
                                        └─► transformers + torch (CPU)
 ```

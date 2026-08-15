@@ -58,11 +58,11 @@ verifie() {
 # ---------------------------------------------------------------------------
 
 @test "RED-PROOF : un skill produit nommant un skill local -> DÉPENDANCE INVERSÉE" {
-  fixture_skill alpha 'Après écriture, invoque /memo pour synchroniser.'
+  fixture_skill alpha 'Après écriture, invoque /alpha-local pour synchroniser.'
   verifie --known-skills "$KNOWN"
   [ "$status" -ne 0 ]
   [[ "$output" == *"DÉPENDANCE INVERSÉE"* ]]
-  [[ "$output" == *"/memo"* ]]
+  [[ "$output" == *"/alpha-local"* ]]
   [[ "$output" == *"alpha/SKILL.md"* ]]
 }
 
@@ -75,7 +75,7 @@ verifie() {
 }
 
 @test "les deux diagnostics ne se confondent pas dans un même passage" {
-  fixture_skill alpha 'Invoque /memo puis /nexiste-pas-du-tout.'
+  fixture_skill alpha 'Invoque /alpha-local puis /nexiste-pas-du-tout.'
   verifie --known-skills "$KNOWN"
   [ "$status" -ne 0 ]
   [[ "$output" == *"DÉPENDANCE INVERSÉE"* ]]
@@ -85,7 +85,7 @@ verifie() {
 @test "sans --known-skills le contrôle rougit quand même, sous un diagnostic dégradé" {
   # Le pouvoir de détection ne dépend pas du référentiel ; seule la finesse du
   # diagnostic en dépend, et le script le dit au lieu de le taire.
-  fixture_skill alpha 'Invoque /memo.'
+  fixture_skill alpha 'Invoque /alpha-local.'
   verifie
   [ "$status" -ne 0 ]
   [[ "$output" == *"HORS PRODUIT"* ]]
@@ -98,7 +98,7 @@ verifie() {
 
 @test "un hook a le droit de nommer un skill local" {
   fixture_skill alpha 'Rien à signaler.'
-  fixture_hook rappel.sh 'echo "pense à /memo"'
+  fixture_hook rappel.sh 'echo "pense à /alpha-local"'
   verifie --hooks-dir "$HOOKS" --known-skills "$KNOWN"
   [ "$status" -eq 0 ] || { echo "$output" >&2; return 1; }
 }
@@ -163,7 +163,7 @@ verifie() {
 }
 
 @test "une exemption ad hoc neutralise le jeton visé, et lui seul" {
-  fixture_skill alpha 'Voir /jeton-technique et /memo.'
+  fixture_skill alpha 'Voir /jeton-technique et /alpha-local.'
   verifie --known-skills "$KNOWN" --ignore jeton-technique
   [ "$status" -ne 0 ]
   # Le jeton exempté figure au récapitulatif des exemptions, jamais parmi les
@@ -171,7 +171,7 @@ verifie() {
   [[ "$output" == *"[IGNORE] /jeton-technique"* ]]
   [[ "$output" != *"[FAIL] /jeton-technique"* ]] || {
     echo "le jeton exempté est encore compté comme écart" >&2; return 1; }
-  [[ "$output" == *"[FAIL] /memo"* ]]
+  [[ "$output" == *"[FAIL] /alpha-local"* ]]
 }
 
 # ---------------------------------------------------------------------------
