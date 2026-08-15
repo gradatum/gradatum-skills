@@ -4,7 +4,12 @@ Format : [Keep a Changelog](https://keepachangelog.com/) — SemVer.
 
 ## [Unreleased]
 
-> Pas encore publié. Le tag public est synchronisé avec une release du serveur `gradatum`.
+## [0.2.0] — 2026-08-14
+
+> Première release publique du plugin. Synchronisée avec la sortie du serveur `gradatum` 2.0.0 :
+> publiée en même temps, **numérotée indépendamment**. Le plugin garde son propre cycle SemVer —
+> « synchronisé » ne veut pas dire « même numéro », et graver le numéro du serveur ici créerait un
+> couplage qui forcerait un tag du plugin à chaque release serveur, même sans changement.
 
 ### Fixed — conformité frontmatter pour les chemins de packaging spec (2026-08-14)
 

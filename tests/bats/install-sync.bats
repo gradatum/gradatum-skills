@@ -123,7 +123,7 @@ put_foreign_skill() {
 }
 
 @test "première installation sans reçu : aucun retrait" {
-  put_foreign_skill "safety-jetable"
+  put_foreign_skill "etranger-jetable"
   [ ! -f "$RECEIPT" ]
   run_sync
   [ "$status" -eq 0 ]
@@ -136,7 +136,7 @@ put_foreign_skill() {
 
 @test "RED-PROOF : des skills locaux hors manifeste survivent à la synchronisation" {
   # Échantillon représentatif des familles locales de l'opérateur.
-  for s in gov-todo memo safety-anomaly-solver dev-code-economy tools-mermaid-diagrams archify; do
+  for s in alpha-etranger beta-etranger gamma-etranger delta-etranger epsilon-etranger zeta-etranger; do
     put_foreign_skill "$s"
   done
   # Un reçu existe et porte un obsolète : le chemin destructif est bien emprunté,
@@ -153,7 +153,7 @@ put_foreign_skill() {
   # Le chemin destructif a bien agi…
   [ ! -d "$DEST/gradatum-sorti-du-produit" ]
   # …et n'a touché aucun skill étranger.
-  for s in gov-todo memo safety-anomaly-solver dev-code-economy tools-mermaid-diagrams archify; do
+  for s in alpha-etranger beta-etranger gamma-etranger delta-etranger epsilon-etranger zeta-etranger; do
     [ -f "$DEST/$s/SKILL.md" ] || { echo "détruit à tort : $s" >&2; return 1; }
   done
 }
@@ -251,7 +251,7 @@ run_verify_install() {
 @test "verify-install.sh ignore les skills étrangers au manifeste" {
   run_sync
   [ "$status" -eq 0 ]
-  put_foreign_skill "gov-jetable"
+  put_foreign_skill "etranger-jetable-2"
   run_verify_install
   [ "$status" -eq 0 ]
 }

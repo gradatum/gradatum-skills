@@ -1,7 +1,7 @@
 ---
 name: gradatum-vault-search
 description: >
-  Recherche dans le vault gradatum (LIVE :19090) — invoquer en réflexion
+  Recherche dans le vault gradatum — invoquer en réflexion
   ("ai-je déjà une note sur X ?", "on a tranché ce sujet ?", "je vais proposer/décider/écrire"),
   recherche explicite ("trouve les notes sur Y"), planification, brainstorming,
   avant toute écriture vault (anti-doublon). Composable par /gradatum-skill-reminder.

@@ -25,7 +25,7 @@ setup() {
   HOOKS="$BATS_TEST_TMPDIR/hooks"
   KNOWN="$BATS_TEST_TMPDIR/known.txt"
   mkdir -p "$FIXT" "$HOOKS"
-  printf 'memo\ngov-todo\nsafety-anomaly-solver\n' > "$KNOWN"
+  printf 'alpha-local\nbeta-local\ngamma-local\n' > "$KNOWN"
 }
 
 # Fabrique un skill de test dont le corps est le texte passé en $2
@@ -137,11 +137,11 @@ verifie() {
 }
 
 @test "une référence entre accents graves est bien vue" {
-  # Le cas mesuré dans le produit : `/gov-todo` cité en code inline.
-  fixture_skill alpha 'Le writer canonique est `/gov-todo`, indisponible ici.'
+  # Le cas mesuré dans le produit : un skill local cité en code inline.
+  fixture_skill alpha 'Le writer canonique est `/beta-local`, indisponible ici.'
   verifie --known-skills "$KNOWN"
   [ "$status" -ne 0 ]
-  [[ "$output" == *"gov-todo"* ]]
+  [[ "$output" == *"beta-local"* ]]
 }
 
 # ---------------------------------------------------------------------------

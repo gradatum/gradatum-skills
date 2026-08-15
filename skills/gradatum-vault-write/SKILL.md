@@ -1,7 +1,7 @@
 ---
 name: gradatum-vault-write
 description: >
-  Écrit une note dans le vault gradatum (LIVE :19090) — CRÉATION ou MISE À JOUR in-place (RMW).
+  Écrit une note dans le vault gradatum — CRÉATION ou MISE À JOUR in-place (RMW).
   RÈGLE OBLIGATOIRE : avant toute création, invoquer /gradatum-vault-search d'abord — si une note
   couvre déjà le sujet, faire un UPDATE (identifiant + hash attendu) plutôt que de créer un
   doublon. Usage : persister durablement une décision, une leçon, une analyse, un compte-rendu.

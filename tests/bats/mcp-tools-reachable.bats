@@ -204,7 +204,7 @@ liste_fichier() {
   # Seule assertion de ce fichier qui interroge le monde réel plutôt que des
   # fixtures. Chacun de ses sauts est donc un trou de vérification, pas une
   # commodité : ils sont annoncés, jamais tus.
-  local url="${GRADATUM_URL:-http://<gradatum-server>}"
+  local url="${GRADATUM_URL:-}"
   if ! command -v curl >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
     skip_bruyant "les outils nommés par les skills livrés existent côté serveur" \
       "curl ou jq absent"

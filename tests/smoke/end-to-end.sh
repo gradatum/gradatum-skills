@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# end-to-end.sh — Smoke test E2E contre gradatum LIVE :19090
+# end-to-end.sh — Smoke test E2E contre un serveur gradatum joignable.
 #
 # Tests : Auth Path 2 (API key → JWT) + vault_search + validation structure réponse.
 #         C'est la même surface HTTP (/auth/exchange + /api/v1/vault_search) que
@@ -15,12 +15,12 @@
 # le consomme.
 #
 # Variables d'environnement :
-#   GRADATUM_URL          (défaut : http://<gradatum-server>)
+#   GRADATUM_URL          (REQUIS — adresse du serveur gradatum du consommateur)
 #   GRADATUM_API_KEY_FILE (REQUISE — chemin du fichier de clé)
 
 set -euo pipefail
 
-GRADATUM_URL="${GRADATUM_URL:-http://<gradatum-server>}"
+GRADATUM_URL="${GRADATUM_URL:?GRADATUM_URL requis — ce depot ne connait pas votre adresse de serveur}"
 API_KEY_FILE="${GRADATUM_API_KEY_FILE:-}"
 
 if [ -z "$API_KEY_FILE" ]; then

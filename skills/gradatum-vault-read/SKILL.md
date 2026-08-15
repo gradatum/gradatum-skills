@@ -1,7 +1,7 @@
 ---
 name: gradatum-vault-read
 description: >
-  Lit le contenu COMPLET d'une note du vault gradatum (LIVE :19090) par son chemin
+  Lit le contenu COMPLET d'une note du vault gradatum par son chemin
   (`<section>/<ulid>`). À utiliser APRÈS /gradatum-vault-search (qui ne renvoie que des chemins +
   scores, PAS le corps des notes) ou quand un chemin est déjà connu. Ne cherche pas — exige un
   chemin exact. Output : markdown intégral + `sha256` (requis pour une mise à jour in-place

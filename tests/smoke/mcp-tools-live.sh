@@ -23,13 +23,13 @@
 # le consomme. Fournir l'une des deux, sans quoi le script sort en erreur.
 #
 # Variables d'environnement :
-#   GRADATUM_URL          (défaut : http://<gradatum-server>)
+#   GRADATUM_URL          (REQUIS — adresse du serveur gradatum du consommateur)
 #   GRADATUM_API_KEY_FILE (REQUISE sauf si GRADATUM_TOKEN — chemin du fichier de clé)
 #   GRADATUM_TOKEN        (jeton déjà obtenu ; court-circuite l'échange)
 
 set -euo pipefail
 
-GRADATUM_URL="${GRADATUM_URL:-http://<gradatum-server>}"
+GRADATUM_URL="${GRADATUM_URL:?GRADATUM_URL requis — ce depot ne connait pas votre adresse de serveur}"
 API_KEY_FILE="${GRADATUM_API_KEY_FILE:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 

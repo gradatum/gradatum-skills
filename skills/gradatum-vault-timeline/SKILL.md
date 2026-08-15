@@ -1,7 +1,7 @@
 ---
 name: gradatum-vault-timeline
 description: >
-  Interroge le vault gradatum (LIVE :19090) selon l'axe TEMPOREL — liste les notes par fenêtre de
+  Interroge le vault gradatum selon l'axe TEMPOREL — liste les notes par fenêtre de
   temps (bornes en epoch millisecondes), filtrable par type (`Static` faits durables / `Event`
   événements). Invoquer pour « qu'a-t-on décidé/changé entre telle et telle date ? »,
   reconstruire une chronologie, ou récupérer l'état d'un sujet à une période donnée (as-of) — par

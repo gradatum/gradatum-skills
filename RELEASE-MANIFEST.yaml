@@ -1,6 +1,6 @@
 # RELEASE-MANIFEST.yaml — gradatum-skills
 #
-# Lu par le gate de release (safety-release-guard, Phase 0bis). Décrit CE QUI SE VÉRIFIE
+# Lu par le processus de release du consommateur. Décrit CE QUI SE VÉRIFIE
 # avant un tag, pas la procédure de tag elle-même.
 #
 # Particularité de ce dépôt : il ne compile rien. Le produit est un ensemble de SKILL.md
@@ -47,4 +47,4 @@ publish:
   internal_first: origin
   public: github
 
-capture: gov-save-decision
+capture: true
