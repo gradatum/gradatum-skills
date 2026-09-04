@@ -398,6 +398,26 @@ jamais générique.
 
 **Test anti-générique** : si le titre s'applique tel quel à un autre projet, il est trop vague.
 
+**Test de survivance au contenant** (2ᵉ mode d'échec, indépendant de l'anti-vague, cumulatif) :
+avant d'écrire un titre — *si le contenant que je nomme (slot, port, machine, phase, version,
+branche) disparaît, la note reste-t-elle retrouvable par son sujet ?* Si non → **sujet en tête,
+contenant en complément**, jamais le contenant en tête ou seul. Un titre peut être spécifique **et**
+périssable ; les deux tests sont cumulatifs. Le curateur *consomme* le titre (`heuristic_route`,
+`duplicate_hint`) — un titre-contenant dégrade routage et anti-doublon.
+- ❌ « Gemma 4 26B QAT LIVE slot deep — 80B retiré » (le contenant « slot deep » domine, sujet noyé →
+  introuvable par sujet quand le slot disparaît)
+- ✅ « Gemma 4 26B retenu comme modèle de service — remplace le 80B, slot deep »
+
+⚠️ La version `— vX.Y.Z` est le contenant le plus volatil (mesuré : 5 changements de jalon en une
+journée). Pour une carte project-map, la version cible se lit **dans le registre project-map (rôle de
+suivi de version du schéma courant), jamais dans le texte du titre** — le nom exact du rôle est celui
+que le registre renvoie, pas un libellé figé ici.
+
+⚠️ **Propagation obligatoire** : toute modification de ce test DOIT être répercutée **dans le même
+council Art.19** sur les 3 distillats satellites (`gradatum-knowledge-base-usage`, `gov-save-decision`,
+`gov-todo`) — un distillat non mis à jour est une note perdue en silence, pas une note à jour en
+attente.
+
 ## Règles de corps
 
 - **Cap** : 300 mots en synthèse, 500 mots en voie directe. Au-delà : couper après le constat

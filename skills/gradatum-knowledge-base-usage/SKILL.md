@@ -108,6 +108,10 @@ suppression définitive — voir `/gradatum-vault-write`.
 - **Titre** : `[CATÉGORIE][PROJET] Verbe au passé + objet concret + résultat — date ISO`.
   Spécifique, jamais générique.
   ❌ « Note sur l'auth » · ✅ « [DECISIONS][monprojet] Retenu JWT 24 h + refresh httpOnly — 2026-08-01 »
+  - **Survivance au contenant** : tester avant d'écrire — si le contenant nommé
+    (slot/port/machine/phase/version/branche) disparaît, le sujet reste-t-il retrouvable seul ? Si
+    non → sujet en tête, jamais le contenant en tête ou seul. Détail + exemples : `/gradatum-memorize`
+    §Titre.
 - **Corps atomique** : constat factuel, condition de réapplication, référence (commit, date,
   événement). Viser 500 mots ; au-delà, découper.
 - **Tags structurés** : `[projet, portée, résultat]`.
