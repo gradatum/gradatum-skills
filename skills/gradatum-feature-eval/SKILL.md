@@ -77,7 +77,7 @@ Ce qui reste mesurable **par ce skill**, et ne relève pas de l'audit :
 Le périmètre est celui des capacités **réellement exposées** :
 
 1. La liste d'outils MCP publiée par le serveur (l'inventaire que le client a sous la main).
-2. Complément documentaire : `vault_search section=architecture` et `section=roadmap` pour les
+2. Complément documentaire : `vault_search section=architecture` et `section=project-map` (`compact=true`) pour les
    features non représentées par un outil (pipelines, jobs, comportements serveur).
 
 Ne pas partir d'une liste de features recopiée d'un document : elle se périme, et une feature
